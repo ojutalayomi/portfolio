@@ -1,0 +1,254 @@
+/**For the Analog Clock**/
+:root{
+  --lightmode: #414141;
+  --darkmode: #fff;
+}
+  #min-checkbox{
+    right: 0px;
+    padding: 0px;
+    margin: 4px;
+    position: relative;
+  }
+  #min-checkbox label{
+    margin: 0;
+  }
+  .checkbox-wrapper-54{
+    position: fixed;
+    z-index: 3;
+    right: 25px;
+  } 
+  @media (min-width: 992px){
+    #min-checkbox input[type="checkbox"]{
+      display: none !important;
+    }
+  }  
+  .checkbox-wrapper-54 input[type="checkbox"] {
+    visibility: hidden;
+    display: none;
+    position: fixed;
+  }
+
+  .checkbox-wrapper-54.btn {
+    box-shadow: none !important;
+    border: none !important;
+    background: none !important;
+  }
+
+  .checkbox-wrapper-54 *,
+  .checkbox-wrapper-54 ::after,
+  .checkbox-wrapper-54 ::before {
+    box-sizing: border-box;
+  }
+
+  /* The switch - the box around the slider */
+  .checkbox-wrapper-54 .switch {
+    --width-of-switch: 3.5em;
+    --height-of-switch: 2em;
+    /* size of sliding icon -- sun and moon */
+    --size-of-icon: 1.4em;
+    /* it is like a inline-padding of switch */
+    --slider-offset: 0.3em;
+    position: relative;
+    width: var(--width-of-switch);
+    height: var(--height-of-switch);
+    display: inline-block;
+  }
+
+  /* The slider */
+  .checkbox-wrapper-54 .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ffffff;
+    transition: .4s;
+    border-radius: 30px;
+    box-shadow: rgb(50 50 93 / 11%) 0px 20px 4px 2px inset, rgb(0 0 0 / 10%) 0px 18px 5px 2px inset;
+  }
+
+  @media (max-width: 992px) {
+    .checkbox-wrapper-54 .slider {
+      box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px, rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    }
+  }
+
+  .checkbox-wrapper-54 .slider:before {
+    position: absolute;
+    content: "";
+    height: var(--size-of-icon,1.4em);
+    width: var(--size-of-icon,1.4em);
+    border-radius: 20px;
+    left: var(--slider-offset,0.3em);
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(40deg,#ff0080,#ff8c00 70%);
+    ;
+   transition: .4s;
+  }
+
+  .checkbox-wrapper-54 input:checked + .slider {
+    background-color: #303136;
+  }
+
+  .checkbox-wrapper-54 input:checked + .slider:before {
+    left: calc(100% - (var(--size-of-icon,1.4em) + var(--slider-offset,0.3em)));
+    background: #303136;
+    /* change the value of second inset in box-shadow to change the angle and direction of the moon  */
+    box-shadow: inset -3px -2px 5px -2px #8983f7, inset -10px -4px 0 0 #a3dafb;
+  }
+
+
+#Clock{
+    width: 70px;
+    color: rgba(255, 217, 0, 0.547);
+    text-align: center;
+    margin: 100px auto;
+    font: 10px sans-serif;
+    border: 1px solid rgba(255, 217, 0, 0.536);
+    border-radius: 2px;
+  }
+
+.clock {
+    width: 15rem;
+    height: 15rem;
+    margin: 142px auto 100px auto;
+    position: relative;
+    padding: 2rem;
+    border-radius: 100%;
+    /*background: #f2f2f2;*/
+    box-shadow:  -14px 3px 13px 10px #000000, -6px 6px 8px #ffffff24;
+  }
+  
+  .outer-clock-face {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 100%;
+    /*background: #f2f2f2;*/
+  box-shadow:  6px -6px 8px #0200008f,
+               -6px 6px 8px #0f000085;
+  }
+  
+  .outer-clock-face::after {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    transform: rotate(90deg)
+  }
+  
+  .outer-clock-face::before,
+  .outer-clock-face::after,
+  .outer-clock-face .marking{
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 100%;
+    background: rgb(51, 123, 238);
+    z-index: 0;
+    left: 49%;
+    
+  }
+  
+  .outer-clock-face .marking {
+    background: var(--darkmode);
+    width: 3px;
+    
+  }
+  
+  .outer-clock-face .marking.marking-one {
+    -webkit-transform: rotate(30deg);
+    -moz-transform: rotate(30deg);
+    transform: rotate(30deg)
+  }
+  
+  .outer-clock-face .marking.marking-two {
+    -webkit-transform: rotate(60deg);
+    -moz-transform: rotate(60deg);
+    transform: rotate(60deg)
+  }
+  
+  .outer-clock-face .marking.marking-three {
+    -webkit-transform: rotate(120deg);
+    -moz-transform: rotate(120deg);
+    transform: rotate(120deg)
+  }
+  
+  .outer-clock-face .marking.marking-four {
+    -webkit-transform: rotate(150deg);
+    -moz-transform: rotate(150deg);
+    transform: rotate(150deg)
+  }
+  
+  .inner-clock-face {
+    position: absolute;
+    top: 10%;
+    left: 10%;
+    width: 80%;
+    height: 80%;
+    background-image: url(https://ojutalayomi.github.io/I/profile.png);
+    backdrop-filter: blur(10px);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
+    z-index: 1;
+    cursor: pointer;
+    transition: all;
+  }
+  .inner-clock-face:hover{
+    /*background-image: url(/web/img/v2osk-Deiuc_XHk_I-unsplash.jpg);*/
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  .inner-clock-face::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 100%;
+    margin-left: -9px;
+    margin-top: -6px;
+    background: #337bee;
+    z-index: 11;
+  }
+  
+  .hand {
+    width: 50%;
+    right: 50%;
+    height: 6px;
+    background: var(--darkmode);
+    position: absolute;
+    top: 50%;
+    border: 2px solid rgba(3, 2, 0, 0);
+    transform-origin: 100%;
+    transform: rotate(90deg);
+    transition-timing-function: cubic-bezier(0.1, 2.7, 0.58, 1);
+    border-radius: 38px;
+  /*box-shadow:  6px -6px 8px #a9a9a9,
+               -6px 6px 8px var(--darkmode);*/
+  }
+  
+  .hand.hour-hand {
+    width: 30%;
+    z-index: 3;
+  }
+  
+  .hand.min-hand {
+    height: 3px;
+    z-index: 10;
+    width: 40%;
+  }
+  
+  .hand.second-hand {
+    background: #D1A103;
+    width: 45%;
+    height: 2px;
+  }

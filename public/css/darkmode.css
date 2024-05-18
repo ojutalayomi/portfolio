@@ -1,0 +1,47 @@
+:root{
+    --darkmode: #000 !important;
+    --lightmode: #ffffff !important;
+    --dbodymode: #ffffff !important;
+    --lbodymode: #000000 !important;
+    }
+    
+   .navbar-light .navbar-brand {
+    color: #fff;
+  }
+  .navbar-light .navbar-nav .nav-link {
+    color: rgb(255 255 255) !important;
+  }
+  a.nav-item.nav-link {
+    color: #ffffff !important;
+  }
+  a.nav-item.nav-link.active {
+    color: #d1a103 !important;
+  }
+  .section-header p::before {
+    background: #ffffff !important;
+  }
+  .section-header p::after {
+    background: #ffffff !important;
+  }
+  .section-header p {
+    background: #15202b !important;
+  }
+  .section-header h2 {
+    color: #f2f2f2 !important;
+  }
+  .service .service-icon {
+    background: #15202b !important;
+  }
+  .service .service-text h3 {
+    color: #f2f2f2;
+  }
+  .service .service-text p {
+    color: #f2f2f2;
+  }
+  .service .service-item:hover {
+    box-shadow: inset 800px 0 0 0 #f2f2f2;
+  }
+  .service .service-item:hover .service-text h3,
+  .service .service-item:hover .service-text p {
+      color: #15202b;
+  }
