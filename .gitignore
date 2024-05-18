@@ -62,7 +62,6 @@ myenv/
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Vuepress build output
 .vuepress/dist
