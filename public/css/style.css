@@ -217,12 +217,23 @@ a:focus {
 }
 
 a.nav-item.nav-link.maxi {
-    display: block;
+    display: none;
     padding: 0px;
+}
+
+.mini{
+    display: none;
+}
+
+@media (max-width: 991px){
+    .mini{
+        display: block;
+    }
 }
 
 @media (min-width: 992px) {
 a.nav-item.nav-link.maxi {
+    display: block;
     padding: 0px !important;
 }
 }
@@ -1361,7 +1372,7 @@ a.nav-item.nav-link.maxi {
     z-index: 1;
 }
 
-.githubstats .githubstats-item img {
+.githubstats .githubstats-item img, .githubstats .githubstats-item .gitstat{
     margin: 0 auto;
     padding: 10px;
     border: 5px solid #D1A103;
