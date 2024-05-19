@@ -66,7 +66,7 @@ app.post('/contact', async(req: Request, res: Response) => {
             message: message
         };
 
-        console.log(newForm);
+        // console.log(newForm);
         await sendEmail(name, email);
         await sendEmailToMe(name, email, subject, message);
         return res.status(200).json({ message: 'Message sent.'})

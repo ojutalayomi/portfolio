@@ -55,7 +55,7 @@ app.post('/contact', (req, res) => __awaiter(void 0, void 0, void 0, function* (
             subject: subject,
             message: message
         };
-        console.log(newForm);
+        // console.log(newForm);
         yield (0, sendEmail_1.sendEmail)(name, email);
         yield (0, sendEmail_1.sendEmailToMe)(name, email, subject, message);
         return res.status(200).json({ message: 'Message sent.' });
