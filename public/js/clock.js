@@ -25,7 +25,7 @@ linkElement.rel = 'stylesheet';
 che[0].addEventListener('click',function (){
   if(che[0].checked == true){
     stats[4].setAttribute("src", "https://github-readme-stats.vercel.app/api?username=ojutalayomi&theme=dark&hide_border=true&include_all_commits=false&count_private=false");
-    stats[5].setAttribute("src", "https://github-readme-streak-stats.herokuapp.com/?user=ojutalayomi&theme=dark&hide_border=true");
+    stats[5].setAttribute("src", "https://github-readme-streak-stats.herokuapp.com/?user=ojutalayomi&amp&theme=dark&hide_border=true");
     stats[6].setAttribute("src", "https://github-readme-stats.vercel.app/api/top-langs/?username=ojutalayomi&theme=dark&hide_border=true&include_all_commits=false&count_private=false&layout=compact");
     document.head.appendChild(linkElement);
     che[1].checked = true

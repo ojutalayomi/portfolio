@@ -1,4 +1,6 @@
-(function ($) {
+// const { data } = require("cheerio/lib/api/attributes");
+
+$(function () {
     "use strict";
     
     // loader
@@ -7,10 +9,42 @@
             if ($('#loader').length > 0) {
                 $('#loader').removeClass('show');
             }
-        }, 5000);
+        }, 3000);
     };
     loader();
     
+    $('#contactForm').on('submit', function(event){
+        event.preventDefault();
+    })
+
+    const sendComment = () => {
+        const formdata = new FormData();
+        const inputs = $('.form-data');
+
+        inputs.each((data)=>{
+            formdata.append(data.attr('name'),data.val());
+        });
+        
+        fetch('/contact',{
+            method: 'POST',
+            body: formdata
+        }).then(response => {
+            if(!response.ok){
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            // Parse the response as JSON or text based on content type
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.indexOf('application/json') !== -1) {
+                return response.json();
+            } else if (contentType && contentType.indexOf('text/html') !== -1) {
+                return response.text();
+            } else {
+                throw new Error('Invalid content type');
+            }
+        }).then(data => {
+            console.log(data);
+        })
+    }
     
     // Initiate the wowjs
     new WOW().init();
@@ -174,4 +208,4 @@
         portfolioIsotope.isotope({filter: $(this).data('filter')});
     });
     
-})(jQuery);
+});

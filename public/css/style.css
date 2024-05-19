@@ -51,6 +51,7 @@ a:focus {
     border-radius: 2px;
     display: flex;
     justify-content: center;
+    padding: 0 10px;
 }
 
 .btn:focus,
@@ -1282,6 +1283,45 @@ a.nav-item.nav-link.maxi {
         line-height: 18px;
         margin-bottom: 10px;
     }
+}
+
+/*******************************/
+/******** technologies *********/
+/*******************************/
+.technologies {
+    position: relative;
+    margin: 45px 0;
+    padding: 90px 0;
+    background: #0B173D;
+}
+.technologies .container{
+    max-width: 900px;
+}
+.technologies .container h2{
+    color: #d1a103;
+    margin: 20px 0;
+}
+.technologies .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+}
+
+.technologies .container .item {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+}
+.technologies .container .item:hover{
+    transform: scale(1.1);
+    transition: .5s cubic-bezier(0.39, 0.58, 0.57, 1);
+}
+
+.technologies svg {
+    height: 100px;
 }
 
 
