@@ -39,10 +39,10 @@
 #dark .service .service-text p {
   color: #f2f2f2;
 }
-#dark .service .service-item:hover {
+/* #dark .service .service-item:hover {
   box-shadow: inset 800px 0 0 0 #f2f2f2;
 }
 #dark .service .service-item:hover .service-text h3,
 #dark .service .service-item:hover .service-text p {
     color: #15202b;
-}
+} */

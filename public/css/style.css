@@ -835,9 +835,9 @@ a.nav-item.nav-link.maxi {
     transition: ease-out 0.5s;
 }
 
-.service .service-item:hover {
+/* .service .service-item:hover {
     box-shadow: inset 800px 0 0 0 #0B173D;
-}
+} */
 
 .service .service-icon {
     position: relative;
@@ -880,10 +880,10 @@ a.nav-item.nav-link.maxi {
     transition: 1s;
 }
 
-.service .service-item:hover .service-text h3,
+/* .service .service-item:hover .service-text h3,
 .service .service-item:hover .service-text p {
     color: #ffffff;
-}
+} */
 
 @media (max-width: 575.98px) {
     .service .service-text h3 {
