@@ -3,25 +3,15 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import { json, urlencoded } from 'body-parser';
 
 // Core Node.js modules
-import { writeFileSync, readFileSync } from 'fs';
 import { join as _join } from 'path';
-import os from 'os';
-import cluster from 'cluster';
 
 // Third-party modules
-import nodemailer from 'nodemailer';
 import validator from 'validator';
-import bcrypt from 'bcrypt';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 
-// Google API modules
-import { google } from 'googleapis';
+// Custom API modules
 import { sendEmail, sendEmailToMe } from './sendEmail';
-const { OAuth2 } = google.auth;
-
-// 
-// import { home } from './routes/home';
 
 config();
 

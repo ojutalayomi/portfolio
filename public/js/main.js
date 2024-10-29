@@ -95,16 +95,16 @@ $(function () {
             seconds = seconds < 10 ? "0" + seconds : seconds;
         
             let time = hoursOfDay + ":" + minutes + ":" + seconds + period;
-            let hr = document.getElementById('hr');
-            let mn = document.getElementById('mn');
-            let sc = document.getElementById('sc');
-            let per = document.getElementById('period');
+            let hr = $('#hr');
+            let mn = $('#mn');
+            let sc = $('#sc');
+            let per = $('#period');
         
             //document.getElementById('Clock').innerHTML = time + " " + today + " " + months + " " + year;
-            hr.innerHTML = hoursOfDay;
-            mn.innerHTML = minutes;
-            sc.innerHTML = seconds;
-            per.innerHTML = period;
+            hr.html(hoursOfDay);
+            mn.html(minutes);
+            sc.html(seconds);
+            per.html(period);
         
         }
         displayTime();

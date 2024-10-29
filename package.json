@@ -7,7 +7,7 @@
     "build": "tsc",
     "dev": "nodemon ./src/app.ts",
     "start": "node dist/app.js",
-    "ayo": "tsc && nodemon ./dist/app.js",
+    "ayo": "tsc && nodemon ./dist/app.js --watch dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

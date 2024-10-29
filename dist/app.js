@@ -15,16 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = require("dotenv");
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = require("body-parser");
+// Core Node.js modules
 const path_1 = require("path");
+// Third-party modules
 const validator_1 = __importDefault(require("validator"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const cors_1 = __importDefault(require("cors"));
-// Google API modules
-const googleapis_1 = require("googleapis");
+// Custom API modules
 const sendEmail_1 = require("./sendEmail");
-const { OAuth2 } = googleapis_1.google.auth;
-// 
-// import { home } from './routes/home';
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
 app.use((0, cookie_parser_1.default)());

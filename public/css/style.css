@@ -12,10 +12,20 @@
     --lbodymode: #ffffff;
     --dbodymode: #15202b;
 }
+
+.truncate, .whitespace-nowrap {
+    white-space: nowrap;
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 body {
     color: #797979;
     background: var(--lbodymode);
-    font-family: myFirstFont;
+    font-family: 'Montserrat', sans-serif;
     color-scheme: light dark;
 }
 #row{
@@ -201,7 +211,7 @@ a:focus {
 .navbar .navbar-brand {
     margin: 0;
     font-family: myFirstFont;
-    font-size: 43px;
+    font-size: 2em;
     line-height: 0px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -357,14 +367,15 @@ a.nav-item.nav-link.maxi {
 
 .hero .hero-text p {
     color: #ffffff;
-    font-family: myFirstFont;
+    font-family: 'Montserrat', sans-serif;
     font-size: 25px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 0px;
 }
 
 .hero .hero-text h1 {
     color: #ffffff;
+    font-family: myFirstFont;
     font-size: 60px;
     font-weight: 700;
     /**text-shadow: -3px 1px 4px rgb(209 161 3);**/
@@ -940,15 +951,16 @@ a.nav-item.nav-link.maxi {
 
 .portfolio .portfolio-img {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .portfolio .portfolio-img img {
+    border: .5px solid gray !important;
     position: relative;
     width: 100%; 
     height: 100%; 
     object-fit: cover;
-    transform: scale(1.1);
+    /* transform: scale(1.1); */
     transition: .5s;
 }
 
@@ -957,10 +969,12 @@ a.nav-item.nav-link.maxi {
 }
 
 .portfolio .portfolio-text {
+    border-radius: 12px;
     position: relative;
-    height: 60px;
+    padding: 10px;
     width: calc(100% - 30px);
-    margin: -30px 15px 30px 15px;
+    margin: -30px 15px 30px;
+    justify-content: space-between;
     display: flex;
     align-items: center;
     background: #ffffff;
@@ -968,30 +982,30 @@ a.nav-item.nav-link.maxi {
 }
 
 .portfolio .portfolio-text h3 {
-    width: calc(100% - 70px);
+    width: 100%;
     font-size: 18px;
     font-weight: 600;
-    margin: 0 0 0 15px;
+    /* margin: 0 0 0 15px; */
     white-space: nowrap;
     overflow: hidden;
 }
 
 .portfolio .portfolio-text a.btn {
-    width: 50px;
-    height: 50px;
-    padding: 0 0 2px 1px;
+    /* width: 50px;
+    height: 50px; */
+    padding: 5px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 45px;
+    font-size: .7em;
     font-weight: 100;
 }
 
 .portfolio .portfolio-item:hover a.btn {
-    color: #D1A103;
+    color: #0B173D;
     background: transparent;
     box-shadow: inset 0 0 0 0 #0B173D;
-    border-color: #D1A103;
+    border-color: #0B173D;
 }
 
 
@@ -1319,6 +1333,26 @@ a.nav-item.nav-link.maxi {
     align-items: center;
     justify-content: center;
     margin: 0 10px;
+}
+
+.technologies .row .row {
+    flex-direction: column;
+}
+
+.technologies .each {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+}
+
+.technologies .container .each .item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .technologies .container .item {

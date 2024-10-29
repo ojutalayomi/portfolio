@@ -20,12 +20,12 @@ checkbox.forEach((che) => {
         stats[0].setAttribute("src", "https://github-readme-stats.vercel.app/api?username=ojutalayomi&theme=dark&hide_border=true&include_all_commits=false&count_private=false");
         stats[1].setAttribute("src", "https://github-readme-streak-stats.herokuapp.com/?user=ojutalayomi&amp&theme=dark&hide_border=true");
         stats[2].setAttribute("src", "https://github-readme-stats.vercel.app/api/top-langs/?username=ojutalayomi&theme=dark&hide_border=true&include_all_commits=false&count_private=false&layout=compact");
-        document.head.appendChild(linkElement);
+        document.body.id = "dark"
       } else if(che.checked == false) {
         stats[0].setAttribute("src", "https://github-readme-stats.vercel.app/api?username=ojutalayomi&amp;theme=light&amp;hide_border=true&amp;include_all_commits=false&amp;count_private=false");
         stats[1].setAttribute("src", "https://github-readme-streak-stats.herokuapp.com/?user=ojutalayomi&amp;theme=light&amp;hide_border=true");
         stats[2].setAttribute("src", "https://github-readme-stats.vercel.app/api/top-langs/?username=ojutalayomi&amp;theme=light&amp;hide_border=true&amp;include_all_commits=false&amp;count_private=false&amp;layout=compact");
-        document.head.removeChild(linkElement);
+        document.body.id = ""
       }
    });   
 });

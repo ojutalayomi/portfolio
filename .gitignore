@@ -105,3 +105,7 @@ Pipfile.lock
 src/test/test.js
 src/test/sendEmails.js
 src/test
+
+.vscode
+.DS_Store
+public/DS_Store
