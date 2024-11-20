@@ -73,10 +73,6 @@ app.get('/home',(req: Request, res: Response, next: NextFunction) => {
 
 const PORT = process.env.PORT || 4000;
 
-export default (req: Request, res: Response) => {
-    app(req, res);
-};
-
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
 });

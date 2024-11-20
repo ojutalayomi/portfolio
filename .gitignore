@@ -109,3 +109,4 @@ src/test
 .vscode
 .DS_Store
 public/DS_Store
+.vercel
