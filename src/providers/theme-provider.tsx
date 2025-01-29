@@ -26,10 +26,13 @@ export function ThemeProvider({
   storageKey = "portfolio-theme",
   ...props
 }: ThemeProviderProps) {
-  const themee = localStorage.getItem(storageKey) || defaultTheme
-  const [theme, setTheme] = useState<Theme>(
-    () => (themee as Theme) 
-  )
+  const [theme, setTheme] = useState<Theme>(defaultTheme)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setTheme(localStorage.getItem(storageKey) as Theme || defaultTheme);
+    }
+  }, [defaultTheme, storageKey]);
 
   useEffect(() => {
     const root = window.document.documentElement
