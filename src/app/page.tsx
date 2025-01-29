@@ -1,12 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 import MainSections from "@/components/Body";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ScrollTriggered from "@/components/ScrollBody";
-import { ThemeProvider } from "@/providers/theme-provider";
 import Image from "next/image";
 import { Typewriter } from 'react-simple-typewriter'
+import dynamic from "next/dynamic";
+import { ComponentType } from "react";
+
+const ThemeProvider = dynamic(() => import("@/providers/theme-provider") as unknown as Promise<{ default: ComponentType<any> }>, {
+  ssr: false,
+});
 
 export default function Home() {
 
