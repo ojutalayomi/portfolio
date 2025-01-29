@@ -13,10 +13,9 @@ const Header = () => {
 
     const list = [
         { label: 'Home', path: '#' },
-        { label: 'Stack', path: '#stack' },
-        { label: 'Projects', path: '#projects' },
         { label: 'About', path: '#about' },
-        { label: 'News', path: '#news' },
+        { label: 'Projects', path: '#projects' },
+        { label: 'Stack', path: '#stack' },
         { label: 'Contact', path: '#contact' }
     ]
 

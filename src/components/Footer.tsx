@@ -28,7 +28,7 @@ const Footer = () => {
     }
 
     return (
-        <footer className="bg-gray-900 text-white py-12">
+        <footer className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 text-white py-12">
                 <div className="container mx-auto px-4">
 
                     {/* Main Footer Content */}
@@ -37,7 +37,7 @@ const Footer = () => {
 
                         {/* Contact Form */}
                         <div className="text-center md:text-left col-span-2 w-3/4">
-                            <h3 className="text-lg font-semibold mb-4">Get in Touch</h3>
+                            <h3 className="text-lg text-gray-600 dark:text-gray-300 font-semibold mb-4">Get in Touch</h3>
                             {message?.status === 'success' && <h4 className="text-lg text-green-500 font-semibold mb-4">{message.content}</h4>}
                             <form className="space-y-4" onSubmit={handleSubmit}>
                                 <div>
@@ -85,7 +85,7 @@ const Footer = () => {
                     </div>
                     
                     {/* Social Links */}
-                    <div className="flex justify-center space-x-6 mb-8">
+                    <div className="flex justify-center space-x-6 mb-8 text-gray-600 dark:text-gray-300">
                         <a href="https://www.facebook.com/ayomide.ojutalayo.12" className="hover:text-gray-300 transition-colors duration-200">
                             <span className="sr-only">Facebook</span>
                             <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -111,7 +111,7 @@ const Footer = () => {
                     {/* Bottom Bar */}
                     <div className="border-t border-gray-800 pt-8">
                         <p className="text-center text-gray-400 text-sm">
-                        Designed and developed with ♥️ | All Rights Reserved
+                        Designed and developed with ♥️ by Ayomide Ojutalayo | All Rights Reserved
                         </p>
                     </div>
                 </div>

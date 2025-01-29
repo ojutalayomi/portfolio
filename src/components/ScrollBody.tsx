@@ -3,9 +3,9 @@ import type { Variants } from "motion/react"
 
 export default function ScrollTriggered() {
     return (
-        <div id='stack'>
+        <div>
             {Object.entries(obj).map(([category, technologies]) => (
-                <div key={category} className="w-full my-8 relative">
+                <div key={category} className="w-full my-8 text-2xl font-bold relative">
                     <motion.p 
                         className="text-4xl w-full font-bold text-center -mb-3 "
                         initial={{ opacity: 0, scale: 0.5 }}
