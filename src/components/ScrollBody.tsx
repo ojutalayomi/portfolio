@@ -179,6 +179,47 @@ const obj = {
         }
     ],
     "Tools & Platforms": [
-
+        {
+            name: "Git",
+            logo: <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="32" height="32" rx="16" fill="#F05133"/><path d="M25.71 15.29L16.71 6.29C16.32 5.9 15.68 5.9 15.29 6.29L13.12 8.46L14.88 10.22C15.47 10.08 16.12 10.24 16.57 10.69C17.03 11.15 17.19 11.81 17.04 12.4L18.73 14.09C19.32 13.95 19.97 14.11 20.42 14.56C21.09 15.23 21.09 16.33 20.42 17C19.75 17.67 18.65 17.67 17.98 17C17.54 16.56 17.38 15.91 17.52 15.32L15.83 13.63V18.18C15.99 18.26 16.15 18.36 16.29 18.5C16.96 19.17 16.96 20.27 16.29 20.94C15.62 21.61 14.52 21.61 13.85 20.94C13.18 20.27 13.18 19.17 13.85 18.5C13.97 18.38 14.12 18.28 14.27 18.2V13.41C14.12 13.33 13.97 13.23 13.83 13.09C13.38 12.64 13.22 11.99 13.36 11.4L11.6 9.64L6.29 14.95C5.9 15.34 5.9 15.98 6.29 16.37L15.29 25.37C15.68 25.76 16.32 25.76 16.71 25.37L25.71 16.37C26.1 15.98 26.1 15.34 25.71 15.29Z" fill="white"/></g></svg>,
+            color: "text-orange-500",
+            hueA: 20,
+            hueB: 40,
+        },
+        {
+            name: "GitHub",
+            logo: <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="32" height="32" rx="16" fill="#181717"/><path d="M16 6C10.477 6 6 10.477 6 16C6 20.418 9.065 24.016 13.205 24.954C13.805 25.064 14.025 24.709 14.025 24.401C14.025 24.123 14.015 23.385 14.009 22.385C10.726 23.09 10.14 20.723 10.14 20.723C9.59 19.323 8.805 18.963 8.805 18.963C7.675 18.195 8.89 18.21 8.89 18.21C10.13 18.295 10.775 19.498 10.775 19.498C11.87 21.398 13.685 20.898 14.38 20.61C14.49 19.838 14.79 19.323 15.12 19.045C12.96 18.765 10.68 17.898 10.68 14.715C10.68 13.77 11.025 13.015 11.605 12.425C11.495 12.145 11.205 11.145 11.715 9.785C11.715 9.785 12.425 9.495 14.005 10.66C14.675 10.475 15.395 10.385 16.115 10.385C16.835 10.385 17.555 10.475 18.225 10.66C19.805 9.495 20.515 9.785 20.515 9.785C21.025 11.145 20.735 12.145 20.625 12.425C21.205 13.015 21.55 13.77 21.55 14.715C21.55 17.91 19.265 18.76 17.105 19.04C17.525 19.39 17.895 20.09 17.895 21.13C17.895 22.57 17.885 23.96 17.885 24.4C17.885 24.71 18.105 25.07 18.715 24.95C22.935 24.01 26 20.418 26 16C26 10.477 21.523 6 16 6Z" fill="white"/></g></svg>,
+            color: "text-gray-900",
+            hueA: 220,
+            hueB: 240,
+        },
+        {
+            name: "Docker",
+            logo: <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="32" height="32" rx="16" fill="#2496ED"/><path d="M22.667 17.333c-.267 0-.533-.027-.8-.08-.16-.027-.32.053-.4.2-.32.56-.693 1.067-1.093 1.507-1.12 1.227-2.56 1.867-4.16 1.867-2.507 0-4.547-1.813-5.547-4.547-.027-.08-.093-.133-.173-.133H7.333c-.093 0-.173.08-.173.173.027.56.12 1.12.267 1.653.373 1.36 1.12 2.547 2.187 3.44C10.56 22.56 12.053 23.2 13.68 23.2c1.36 0 2.667-.427 3.76-1.227.56-.4 1.067-.88 1.507-1.427.067-.08.187-.093.267-.027.373.307.8.547 1.267.693.267.08.547.12.827.12 1.04 0 2.013-.413 2.72-1.173.76-.8 1.173-1.893 1.173-3.093v-.16c0-.093-.08-.173-.173-.173h-2.4zm-7.36-2.4h1.6v1.6h-1.6v-1.6zm2.4 0h1.6v1.6h-1.6v-1.6zm2.4 0h1.6v1.6h-1.6v-1.6zm-7.2 0h1.6v1.6h-1.6v-1.6zm2.4 0h1.6v1.6h-1.6v-1.6zm-2.4-2.4h1.6v1.6h-1.6v-1.6zm2.4 0h1.6v1.6h-1.6v-1.6zm2.4 0h1.6v1.6h-1.6v-1.6zm2.4 0h1.6v1.6h-1.6v-1.6zm2.4 0h1.6v1.6h-1.6v-1.6z" fill="#fff"/></g></svg>,
+            color: "text-blue-400",
+            hueA: 200,
+            hueB: 220,
+        },
+        {
+            name: "Vercel",
+            logo: <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="32" height="32" rx="16" fill="#000"/><path d="M16 8L24 24H8L16 8Z" fill="white"/></g></svg>,
+            color: "text-black",
+            hueA: 0,
+            hueB: 0,
+        },
+        {
+            name: "VS Code",
+            logo: <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="32" height="32" rx="16" fill="#007ACC"/><path d="M25.5 8.5L21.5 6.5C21.1 6.3 20.6 6.3 20.2 6.5L9.5 13.5C9.1 13.7 9 14.2 9.2 14.6L11.5 18.5L9.2 22.4C9 22.8 9.1 23.3 9.5 23.5L20.2 30.5C20.6 30.7 21.1 30.7 21.5 30.5L25.5 28.5C25.9 28.3 26 27.8 25.8 27.4L23.5 23.5L25.8 19.6C26 19.2 25.9 18.7 25.5 18.5Z" fill="white"/></g></svg>,
+            color: "text-blue-500",
+            hueA: 205,
+            hueB: 245,
+        },
+        {
+            name: "Figma",
+            logo: <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" strokeWidth="0"></g><g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g><g id="SVGRepo_iconCarrier"><rect width="32" height="32" rx="16" fill="#fff"/><g><circle cx="16" cy="9" r="4" fill="#F24E1E"/><circle cx="16" cy="16" r="4" fill="#A259FF"/><circle cx="16" cy="23" r="4" fill="#1ABCFE"/><circle cx="23" cy="9" r="4" fill="#0ACF83"/><circle cx="9" cy="9" r="4" fill="#FF7262"/></g></g></svg>,
+            color: "text-pink-500",
+            hueA: 340,
+            hueB: 10,
+        }
     ]
 }
