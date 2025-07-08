@@ -4,6 +4,7 @@ import MainSections from "@/components/Body";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import ScrollTriggered from "@/components/ScrollBody";
+import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarShortcut, MenubarTrigger } from "@/components/ui/menubar";
 import { ThemeProvider } from "@/providers/theme-provider";
 import Image from "next/image";
 import { Typewriter } from 'react-simple-typewriter'
@@ -61,25 +62,30 @@ export default function Home() {
                     </h2>
                   </div>
                   <div className="flex gap-4 items-center flex-row">
-                    {/* <a
-                      className="rounded-full group border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-                      href="#contact"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handleScroll('contact')
-                      }}
-                    >
-                      <Image
-                        className="dark:invert group-hover:rotate-180 transition-[rotate] duration-300"
-                        src="/vercel.svg"
-                        alt="Vercel logomark"
-                        width={20}
-                        height={20}
-                      />
-                      Hire Me
-                    </a> */}
+                    <Menubar className="border-none">
+                      <MenubarMenu>
+                        <MenubarTrigger 
+                        className="rounded-full group border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+                        >
+                          Send a DM
+                        </MenubarTrigger>
+                        <MenubarContent>
+                          <MenubarItem onClick={() => window.open('https://x.com/messages/compose?recipient_id=ojutalayomi')} className="cursor-pointer">
+                            X(Formerly Twitter) 
+                            <MenubarShortcut>
+                              <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
+                            </MenubarShortcut>
+                          </MenubarItem>
+                          <MenubarSeparator />
+                          <MenubarItem onClick={() => window.open('https://www.linkedin.com/in/ayomideojutalayo')} className="cursor-pointer">
+                            LinkedIn
+                            <MenubarShortcut>
+                              <svg className="h-6 w-6" viewBox="0 -2 44 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>LinkedIn-color</title> <desc>Created with Sketch.</desc> <defs> </defs> <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> <g id="Color-" transform="translate(-702.000000, -265.000000)" fill="#007EBB"> <path d="M746,305 L736.2754,305 L736.2754,290.9384 C736.2754,287.257796 734.754233,284.74515 731.409219,284.74515 C728.850659,284.74515 727.427799,286.440738 726.765522,288.074854 C726.517168,288.661395 726.555974,289.478453 726.555974,290.295511 L726.555974,305 L716.921919,305 C716.921919,305 717.046096,280.091247 716.921919,277.827047 L726.555974,277.827047 L726.555974,282.091631 C727.125118,280.226996 730.203669,277.565794 735.116416,277.565794 C741.21143,277.565794 746,281.474355 746,289.890824 L746,305 L746,305 Z M707.17921,274.428187 L707.117121,274.428187 C704.0127,274.428187 702,272.350964 702,269.717936 C702,267.033681 704.072201,265 707.238711,265 C710.402634,265 712.348071,267.028559 712.41016,269.710252 C712.41016,272.34328 710.402634,274.428187 707.17921,274.428187 L707.17921,274.428187 L707.17921,274.428187 Z M703.109831,277.827047 L711.685795,277.827047 L711.685795,305 L703.109831,305 L703.109831,277.827047 L703.109831,277.827047 Z" id="LinkedIn"> </path> </g> </g> </g></svg>
+                            </MenubarShortcut>
+                          </MenubarItem>
+                        </MenubarContent>
+                      </MenubarMenu>
+                    </Menubar>
                     <a
                       className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
                       href="#contact"
@@ -90,7 +96,7 @@ export default function Home() {
                         handleScroll('contact')
                       }}
                     >
-                      Contact Me
+                      Email Me
                     </a>
                 </div>
                 </div>

@@ -32,6 +32,7 @@ const Header = () => {
             <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
                 <div className="w-full md:w-auto flex justify-between items-center">
                     <Image src="/default-logo1.svg" className="pb-1 aspect-square md:size-12" width={33} height={33} alt=''/>
+                    <h1 className="text-3xl font-[myFirstFont]">Ayomide Ojutalayo</h1>
                     {/* Hamburger Menu Button */}
                     <div className="md:hidden flex items-center gap-2">
                         <ModeToggle />

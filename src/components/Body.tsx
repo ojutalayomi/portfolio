@@ -2,7 +2,7 @@
 import { sql } from '@vercel/postgres';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { Card, CardContent } from './ui/card';
-import { Cpu, BookOpen, Code2, Smartphone, CheckCircle, Copy, EyeOff, Eye, XCircle, Pencil, Loader2 } from 'lucide-react';
+import { Cpu, BookOpen, Code2, Smartphone, CheckCircle, Copy, EyeOff, Eye, XCircle, Pencil, Loader2, Settings, BookOpenCheck } from 'lucide-react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { useState, useEffect, useMemo, Dispatch, SetStateAction, ReactNode, createRef } from 'react';
 import { Input } from './ui/input';
@@ -541,30 +541,49 @@ export default function MainSections() {
       </h2>
       <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800">
         <CardContent className="p-6">
-          <p className="text-lg mb-4">
-            I am a passionate Computer Science undergraduate at the University of Lagos, building expertise in full-stack web development. Since starting my coding journey in November 2023, I&apos;ve dedicated myself to mastering modern web technologies and creating efficient, scalable applications.
-          </p>
-          <div className="flex items-center gap-2 mb-4">
-            <BookOpen className="h-5 w-5" />
-            <span className="font-medium">Currently Learning & Growing</span>
-          </div>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
-            With a strong foundation in data structures, algorithms, and cloud computing, I&apos;m constantly pushing my boundaries to become a well-rounded software engineer. When not coding, I contribute to open-source projects and mentor junior developers.
-          </p>
-          <div className="flex items-center gap-2 mb-4">
-            <Code2 className="h-5 w-5" />
-            <span className="font-medium">My Stack</span>
-          </div>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
-            On the front end, I create intuitive and responsive user interfaces using React, Next.js, TailwindCSS, HTML5, and JavaScript, ensuring smooth user experiences. On the back end, I develop high-performance APIs and real-time systems with Node.js, Express.js, and Golang, leveraging MongoDB, Redis, and SQLite for database management.
-            I am proficient in JavaScript, TypeScript, Python, and Golang, and I thrive in an environment where I can design, build, and optimize software solutions. I also work with Docker, Git, Firebase, AWS, and Vercel to deploy and manage applications efficiently.
-          </p>
+          <section className="space-y-8">
+            <div>
+              <div className="flex items-center gap-2 text-xl font-semibold">
+                <Settings className="w-5 h-5" />
+                <span>About Me</span>
+              </div>
+              <p className="mt-2 text-muted-foreground">
+                I’m a 300-level Computer Science student at the University of Lagos with a growing expertise in full-stack and backend development. My programming journey began in <strong>November 2022</strong> with HTML, CSS, and JavaScript. In <strong>December 2023</strong>, I stepped into backend development using <strong>Express.js</strong>, building my first full-stack social media app from scratch.
+              </p>
+              <p className="mt-2 text-muted-foreground">
+                Since then, I’ve built a variety of projects — from real-time social platforms and analytics dashboards to CLI tools and embedded APIs — including the very <strong>portfolio</strong> you're browsing now, built with <strong>Next.js</strong>, <strong>Tailwind CSS</strong>, and <strong>PostgreSQL</strong>.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 text-xl font-semibold">
+                <BookOpenCheck className="w-5 h-5" />
+                <span>Currently Learning & Growing</span>
+              </div>
+              <p className="mt-2 text-muted-foreground">
+                With a strong foundation in <strong>data structures</strong>, <strong>algorithms</strong>, and <strong>cloud computing</strong>, I’m always pushing my limits to become a well-rounded software engineer. When I’m not coding, I contribute to <strong>open-source projects</strong> and <strong>mentor junior developers</strong>, helping them take their first steps in tech.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 text-xl font-semibold">
+                <Code2 className="w-5 h-5" />
+                <span>My Stack</span>
+              </div>
+              <ul className="mt-2 list-disc list-inside text-muted-foreground">
+                <li><strong>Frontend:</strong> React, Next.js, Tailwind CSS, SCSS</li>
+                <li><strong>Languages:</strong> TypeScript, JavaScript, Python (FastAPI), Golang, Node.js, C#</li>
+                <li><strong>Databases:</strong> PostgreSQL, MongoDB, Redis</li>
+                <li><strong>Exploring:</strong> System design, Concurrency, File-based storage, Scalable backend services</li>
+              </ul>
+            </div>
+          </section>
         </CardContent>
       </Card>
 
       {/* Projects Section */}
       <section id="projects" className="scroll-mt-20">
-        <h2 className="text-3xl text-center font-bold my-8 text-gray-800 dark:text-white">Projects</h2>
+        <h2 className="text-3xl text-center font-bold my-8 text-gray-800 dark:text-white">Projects ({dbProjects.length})</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {(dbProjects.length ? dbProjects : projects).map((project, index) => (
             <div key={index} className="flex flex-col items-center border dark:from-gray-900 dark:to-gray-800 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
