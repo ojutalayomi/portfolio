@@ -100,7 +100,7 @@ export default function Home() {
           </div>
         </div>
         <MainSections />
-        <div id='stack' className="">
+        <div id='stack' className="max-w-6xl mx-auto px-4 py-12">
           <div className="text-center text-white text-4xl font-bold">Stack</div>
           <ScrollTriggered />
         </div>

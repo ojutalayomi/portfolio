@@ -18,7 +18,41 @@ import {
 } from "./ui/input-otp";
 import { generate_totp, generateQRCodeURL } from '@/app/action';
 import { toast } from "sonner";
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
+
+const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), { ssr: false });
+import { json } from '@codemirror/lang-json';
+import { githubLight } from '@uiw/codemirror-theme-github';
+import dynamic from 'next/dynamic';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+
+const ajv = new Ajv({ allErrors: true });
+addFormats(ajv);
+
+const projectSchema = {
+  type: 'array',
+  items: {
+    type: 'object',
+    required: ['title', 'description', 'techStack', 'githubRepo', 'demoUrl', 'image'],
+    properties: {
+      title: { type: 'string' },
+      description: { type: 'string' },
+      techStack: {
+        anyOf: [
+          { type: 'array', items: { type: 'string' } },
+          { type: 'string' }
+        ]
+      },
+      githubRepo: { type: 'string' },
+      demoUrl: { type: 'string', format: 'uri' },
+      image: { type: 'string' }
+    }
+  }
+};
+
+const validate = ajv.compile(projectSchema);
 
 interface Project {
   id?: string,
@@ -93,19 +127,20 @@ export default function MainSections() {
     image: ''
   });
   const [projectsInText, setProjectsInText] = useState('');
-  const textareaPlaceholder = `Paste your projects here as a JSON array. Example:
-  [
-    {
-      "title": "Project Title",
-      "description": "Short description of the project.",
-      "techStack": ["React", "TypeScript"],
-      "githubRepo": "repo-name",
-      "demoUrl": "https://demo-link.com",
-      "image": "/path/to/image.png"
-    }
-  ]
-  `
+  // const textareaPlaceholder = `Paste your projects here as a JSON array. Example:
+  // [
+  //   {
+  //     "title": "Project Title",
+  //     "description": "Short description of the project.",
+  //     "techStack": ["React", "TypeScript"],
+  //     "githubRepo": "repo-name",
+  //     "demoUrl": "https://demo-link.com",
+  //     "image": "/path/to/image.png"
+  //   }
+  // ]
+  // `
   const [textareaError, setTextareaError] = useState('');
+  const [errors, setErrors] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
   const [dbProjects, setDbProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
@@ -213,48 +248,34 @@ export default function MainSections() {
     fetchProjects();
   }, [projects]);
 
+  useEffect(() => {
+    toast.error(textareaError, {
+      duration: 5000,
+      position: 'top-center',
+    })
+  }, [textareaError]);
+
   // Handle form input
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   // Handle form textarea
-  function handleChangeForTextArea(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setTextareaError('')
-    const rawInput = e.target.value;
-    setProjectsInText(rawInput);
+  function handleChangeForCodeMirror(value: string) {
+    setProjectsInText(value);
     try {
-      const parsedProjects = JSON.parse(rawInput);
-      if (!rawInput) {
-        setTextareaError('');
+      const parsedProjects = JSON.parse(value);
+
+      if (!validate(parsedProjects)) {
+        const validationErrors = validate.errors?.map(e => `• ${e.instancePath} ${e.message}`) || [];
+        setErrors(validationErrors);
         return;
       }
-      if (!Array.isArray(parsedProjects)) {
-        setTextareaError("Input is not a valid array of projects.");
-      }
-      if (parsedProjects.length === 0) {
-        setTextareaError("Input array is empty. Please provide at least one project.");
-      }
-      // Validate each project object
-      parsedProjects.map((project: Project) => {
-        if (!project.title) {
-          setTextareaError("Each project must have a title.");
-        } else if (!project.description) {
-          setTextareaError("Each project must have a description.");
-        } else if (!project.techStack) {
-          setTextareaError("Each project must have a techStack field.");
-        } else if (!project.githubRepo) {
-          setTextareaError("Each project must have a githubRepo field.");
-        } else if (!project.image) {
-          setTextareaError("Each project must have an image field.");
-        } else if (!project.demoUrl) {
-          setTextareaError("Each project must have a demoUrl field.");
-        }
-        // console.log(project)
-      })
+
+      setErrors([]);
     } catch (error) {
       // console.error("Error parsing JSON:", error);
-      if (!rawInput) {
+      if (!value.trim()) {
         return;
       }
       setTextareaError(`${error}`);
@@ -284,9 +305,8 @@ export default function MainSections() {
         )
       `;
       // Check if the event target contains a textarea with id "textareaM"
-      const textarea = (e.target as HTMLElement).querySelector?.('textarea#textareaM');
-      if (textarea) {
-        const rawInput = textarea.innerHTML;
+      if (projectsInText) {
+        const rawInput = projectsInText.trim();
         const parsedProjects = JSON.parse(rawInput);
         if (Array.isArray(parsedProjects)) {
           for (const project of parsedProjects) {
@@ -324,8 +344,8 @@ export default function MainSections() {
       setOpen(false);
       setForm({ title: '', description: '', techStack: '', githubRepo: '', demoUrl: '', image: '' });
     } catch (err) {
-      console.log(err);
-      toast.error('Failed to add project');
+      // console.log(err);
+      toast.error(err instanceof Error ? err.message : 'Failed to add project');
     } finally {
       setLoading(false);
     }
@@ -351,7 +371,7 @@ export default function MainSections() {
       setAuth({ username: '', password: '' });
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Failed to authenticate.')
-      console.log(err);
+      // console.log(err);
       toast.error('Failed to authenticate.');
     } finally {
       setLoading(false);
@@ -481,25 +501,31 @@ export default function MainSections() {
                   <TabsContent value="single" className="space-y-4">
                     <Input name="title" placeholder="Title" value={form.title} onChange={handleChange} required />
                     <Textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="w-full p-2 rounded border" required />
-                    <Input name="tech" placeholder="Tech (comma separated)" value={form.techStack} onChange={handleChange} required />
-                    <Input name="github" placeholder="GitHub repo name" value={form.githubRepo} onChange={handleChange} required />
-                    <Input name="demo" placeholder="Demo URL" value={form.demoUrl} onChange={handleChange} />
-                    <Input name="img" placeholder="Image path" value={form.image} onChange={handleChange} />
+                    <Input name="techStack" placeholder="Tech (comma separated)" value={form.techStack} onChange={handleChange} required />
+                    <Input name="githubRepo" placeholder="GitHub repo name" value={form.githubRepo} onChange={handleChange} required />
+                    <Input name="demoUrl" placeholder="Demo URL" value={form.demoUrl} onChange={handleChange} />
+                    <Input name="image" placeholder="Image path" value={form.image} onChange={handleChange} />
                   </TabsContent>
                   <TabsContent value="multiple" className="space-y-4">
                     <div className="text-xs text-gray-500 mt-2">
                       Please enter a valid JSON array of project objects. Each object should include: <b>title</b>, <b>description</b>, <b>techStack</b> (array), <b>githubRepo</b>, <b>demoUrl</b>, and <b>image</b>.
                     </div>
-                    <Textarea
-                      id="textareaM"
-                      name="projects"
-                      placeholder={textareaPlaceholder}
+                    <CodeMirror
                       value={projectsInText}
-                      onChange={handleChangeForTextArea}
-                      className="w-full min-h-80 p-2 rounded border"
-                      required
+                      height="400px"
+                      theme={githubLight}
+                      extensions={[json()]}
+                      onChange={handleChangeForCodeMirror}
                     />
-                    {textareaError && <div className="text-red-500 text-sm">{textareaError}</div>}
+
+                    {errors.length > 0 && (
+                      <div className="mt-4 bg-red-100 p-3 text-red-700 rounded">
+                        <strong>Validation Errors:</strong>
+                        <ul className="list-disc ml-5">
+                          {errors.map((err, i) => <li key={i}>{err}</li>)}
+                        </ul>
+                      </div>
+                    )}
                   </TabsContent>
                 </Tabs>
                 <Button type="submit" className='w-full' disabled={loading}>{loading ? 'Adding...' : 'Add Project'}</Button>
@@ -542,7 +568,10 @@ export default function MainSections() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {(dbProjects.length ? dbProjects : projects).map((project, index) => (
             <div key={index} className="flex flex-col items-center border dark:from-gray-900 dark:to-gray-800 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-              <img src={project.image} alt={project.title} className="w-full h-auto object-cover rounded-t-xl mb-4" />
+              <Avatar className="w-full h-auto object-cover rounded-none !rounded-t-xl mb-4 aspect-[16/10]">
+                <AvatarImage src={project.image || "i"} alt={project.title} className="w-full h-auto object-cover rounded-t-xl mb-4" />
+                <AvatarFallback className="w-full h-auto object-cover rounded-none rounded-t-xl mb-4">{project.title}</AvatarFallback>
+              </Avatar>
               <div className="relative p-6">
                 <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{project.title}</h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
@@ -552,7 +581,7 @@ export default function MainSections() {
                   ))}
                 </div>
                 <div className="flex gap-4">
-                  <a href={"https://github.com/ojutalayomi/"+project.githubRepo} className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" target="_blank" rel="noreferrer">
+                  <a href={project.githubRepo.includes("https://github.com/") ? project.githubRepo : "https://github.com/ojutalayomi/"+project.githubRepo} className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" target="_blank" rel="noreferrer">
                     <FaGithub className="mr-2" /> Code
                   </a>
                   {project.demoUrl && (
@@ -580,6 +609,8 @@ export default function MainSections() {
 
 export function ProjectEditOrDelete({ children, id, projects, setProjects }: { children: ReactNode, id: string, projects: Project[], setProjects: Dispatch<SetStateAction<Project[]>>  }) {
   const project = projects.find(project => project.id === id);
+
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState({ edit: false, delete: false });
   const cancelButtonRef = useMemo(() => createRef<HTMLButtonElement>(), []);
   const [form, setForm] = useState({
@@ -621,7 +652,7 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
           github_repo = ${form.githubRepo},
           demo_url = ${form.demoUrl},
           image = ${form.image},
-          lastUpdated = ${new Date().toISOString()}
+          last_updated = ${new Date().toISOString()}
         WHERE id = ${id}
       `;
       const res = await sql`SELECT * FROM projects ORDER BY id DESC`;
@@ -635,10 +666,11 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
         demoUrl: row.demo_url,
         image: row.image
       })));
-      cancelButtonRef.current?.click();
+      setOpen(false);
+      toast.success('Project updated successfully');
     } catch (err) {
-      console.log(err);
-      toast.error('Failed to add project');
+      // console.log(err);
+      toast.error(err instanceof Error ? err.message : 'Failed to add project');
     } finally {
       setLoading({ edit: false, delete: false });
     }
@@ -662,8 +694,8 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
       })));
       cancelButtonRef.current?.click();
     } catch (err) {
-      console.log(err);
-      toast.error('Failed to delete project');
+      // console.log(err);
+      toast.error(err instanceof Error ? err.message : 'Failed to delete project');
     } finally {
       setLoading({ edit: false, delete: false });
     }
@@ -672,7 +704,7 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
   if (!project) return null;
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <form>
         <DialogTrigger asChild>
           {children}
@@ -686,12 +718,12 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
           </DialogHeader>
           <form onSubmit={handleSubmit} className="grid gap-4">
             <div className="grid gap-3">
-              <Label htmlFor="name-1">Title</Label>
-              <Input id="name-1" name="name" value={form.title} onChange={handleChange} />
+              <Label htmlFor="title">Title</Label>
+              <Input id="title" name="title" value={form.title} onChange={handleChange} />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="description">Description</Label>
-              <Input id="description" name="description" value={form.description} onChange={handleChange} />
+              <Textarea id="description" name="description" value={form.description} onChange={handleChange} />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="techStack">Tech Stack</Label>
@@ -714,24 +746,30 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
             <DialogClose asChild>
               <Button variant="outline" ref={cancelButtonRef} disabled={loading.edit || loading.delete}>Cancel</Button>
             </DialogClose>
-            <Popover>
-              <PopoverTrigger asChild>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
                 <Button variant="destructive" disabled={loading.edit || loading.delete}>
                   {loading.delete ? <Loader2 className='animate-spin size-4'/> : <>Delete Project</>}
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent>
-                Are you sure you want to delete this project?
-                <div className="mt-2 flex items-center justify-between">
-                  <Button variant="destructive" onClick={handleDelete} disabled={loading.edit || loading.delete}>
-                    {loading.delete ? <Loader2 className='animate-spin size-4'/> : <>Yes, delete</>}
-                  </Button>
-                  <Button variant="secondary" onClick={() => cancelButtonRef.current?.click()} disabled={loading.edit || loading.delete}>
-                    Cancel
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    project and remove your data from our database.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel disabled={loading.edit || loading.delete}>Cancel</AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button variant="destructive" onClick={handleDelete} disabled={loading.edit || loading.delete}>
+                      {loading.delete ? <Loader2 className='animate-spin size-4'/> : <>Yes, delete</>}
+                    </Button>
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <Button type="submit" disabled={loading.edit || loading.delete} onClick={handleSubmit} className="bg-blue-600 text-white hover:bg-blue-700">
               {loading.edit || loading.delete ? <>Loading...</> : <>Save changes</>}
             </Button>

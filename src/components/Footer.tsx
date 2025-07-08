@@ -45,7 +45,7 @@ const Footer = () => {
                                         name="name"
                                         type="text"
                                         placeholder="Enter your name"
-                                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-gray-500 focus:outline-none"
+                                        className="w-full p-2 dark:bg-gray-800 rounded border text-black dark:text-white dark:border-gray-700 focus:border-gray-500 focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -53,7 +53,7 @@ const Footer = () => {
                                         name="email"
                                         type="email"
                                         placeholder="Enter your email"
-                                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-gray-500 focus:outline-none"
+                                        className="w-full p-2 dark:bg-gray-800 rounded border text-black dark:text-white dark:border-gray-700 focus:border-gray-500 focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -61,7 +61,7 @@ const Footer = () => {
                                         name="subject"
                                         type="text"
                                         placeholder="Subject"
-                                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-gray-500 focus:outline-none"
+                                        className="w-full p-2 dark:bg-gray-800 rounded border text-black dark:text-white dark:border-gray-700 focus:border-gray-500 focus:outline-none"
                                     />
                                 </div>
                                 <div>
@@ -69,7 +69,7 @@ const Footer = () => {
                                         name="message"
                                         placeholder="Your message"
                                         rows={3}
-                                        className="w-full p-2 bg-gray-800 rounded border border-gray-700 focus:border-gray-500 focus:outline-none"
+                                        className="w-full p-2 dark:bg-gray-800 rounded border text-black dark:text-white dark:border-gray-700 focus:border-gray-500 focus:outline-none"
                                     />
                                 </div>
                                 <Button
@@ -86,12 +86,12 @@ const Footer = () => {
                     
                     {/* Social Links */}
                     <div className="flex justify-center space-x-6 mb-8 text-gray-600 dark:text-gray-300">
-                        <a href="https://www.facebook.com/ayomide.ojutalayo.12" className="hover:text-gray-300 transition-colors duration-200">
+                        {/* <a href="https://www.facebook.com/ayomide.ojutalayo.12" className="hover:text-gray-300 transition-colors duration-200">
                             <span className="sr-only">Facebook</span>
                             <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
                             </svg>
-                        </a>
+                        </a> */}
                         <a href="https://x.com/@ojutalayomi" className="hover:text-gray-300 transition-colors duration-200">
                             <span className="sr-only">X</span>
                             <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
