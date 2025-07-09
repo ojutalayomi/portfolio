@@ -32,7 +32,7 @@ export async function generateQRCodeURL() {
   return new Promise((resolve, reject) => {
     QRCode.toDataURL(otpauthUrl, (err, dataURL) => {
       if (err) reject(err);
-      else resolve(dataURL);
+      else resolve({ dataURL, key });
     });
   });
 }

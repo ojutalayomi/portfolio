@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
+import dynamic from 'next/dynamic';
 import { sql } from '@vercel/postgres';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { Card, CardContent } from './ui/card';
-import { Cpu, BookOpen, Code2, Smartphone, CheckCircle, Copy, EyeOff, Eye, XCircle, Pencil, Loader2, Settings, BookOpenCheck } from 'lucide-react';
+import { Cpu, Code2, Smartphone, CheckCircle, Copy, EyeOff, Eye, XCircle, Pencil, Loader2, Settings, BookOpenCheck } from 'lucide-react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { useState, useEffect, useMemo, Dispatch, SetStateAction, ReactNode, createRef } from 'react';
 import { Input } from './ui/input';
@@ -16,17 +17,17 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "./ui/input-otp";
-import { generate_totp, generateQRCodeURL } from '@/app/action';
+import { generateQRCodeURL } from '@/app/action';
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from './ui/alert-dialog';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
-const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), { ssr: false });
 import { json } from '@codemirror/lang-json';
-import { githubLight } from '@uiw/codemirror-theme-github';
-import dynamic from 'next/dynamic';
+import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { useTheme } from '@/providers/theme-provider';
+const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), { ssr: false });
 
 const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
@@ -35,7 +36,7 @@ const projectSchema = {
   type: 'array',
   items: {
     type: 'object',
-    required: ['title', 'description', 'techStack', 'githubRepo', 'demoUrl', 'image'],
+    required: ['title', 'description', 'techStack', 'githubRepo', 'demoUrl', 'image', 'imageAlt', 'dateAdded'],
     properties: {
       title: { type: 'string' },
       description: { type: 'string' },
@@ -47,7 +48,9 @@ const projectSchema = {
       },
       githubRepo: { type: 'string' },
       demoUrl: { type: 'string', format: 'uri' },
-      image: { type: 'string' }
+      image: { type: 'string' },
+      imageAlt: { type: 'string' },
+      dateAdded: { type: 'string', format: 'date' }
     }
   }
 };
@@ -62,6 +65,8 @@ interface Project {
   githubRepo: string;
   demoUrl?: string;
   image?: string;
+  imageAlt: string;
+  dateAdded: string;
 }
 
 // [
@@ -78,6 +83,7 @@ interface Project {
 
 
 export default function MainSections() {
+  const { theme } = useTheme()
   // Memoize projects array to avoid useEffect dependency warning
 
   const projects: Project[] = useMemo(() => [
@@ -87,7 +93,9 @@ export default function MainSections() {
       "techStack": ["HTML", "CSS", "SCSS", "JavaScript"],
       "githubRepo": "analytics-dashboard",
       "demoUrl": "https://analytics-dashboard-362w.onrender.com",
-      "image": "/analytics-dashboard-362w.onrender.com_.png"
+      "image": "/analytics-dashboard-362w.onrender.com_.png",
+      "imageAlt": "Analytics Dashboard",
+      "dateAdded": ""
     },
     {
       "title": "Social Media Platform – Velo",
@@ -95,7 +103,9 @@ export default function MainSections() {
       "techStack": ["React", "Next.js", "TypeScript", "Node.js (Socket Server)", "MongoDB", "Redis"],
       "githubRepo": "velo",
       "demoUrl": "https://velo-virid.vercel.app",
-      "image": "/velo-virid.vercel.png"
+      "image": "/velo-virid.vercel.png",
+      "imageAlt": "Velo Social Media Platform",
+      "dateAdded": ""
     },
     {
       "title": "Video Conferencing App – FaceY",
@@ -103,7 +113,9 @@ export default function MainSections() {
       "techStack": ["React", "Next.js", "MongoDB", "Tailwind CSS", "Golang (Socket Server)"],
       "githubRepo": "facey",
       "demoUrl": "https://facey.vercel.app",
-      "image": "/facey.vercel.app.png"
+      "image": "/facey.vercel.app.png",
+      "imageAlt": "FaceY Video Conferencing App",
+      "dateAdded": ""
     },
     {
       "title": "E-commerce Platform – Petty Shelter",
@@ -111,7 +123,9 @@ export default function MainSections() {
       "techStack": ["React", "Express.js", "MongoDB", "Tailwind CSS"],
       "githubRepo": "pet-shelter",
       "demoUrl": "https://petty-store.vercel.app",
-      "image": "/petty-store.vercel.app(1).png"
+      "image": "/petty-store.vercel.app(1).png",
+      "imageAlt": "Petty Shelter E-commerce Platform",
+      "dateAdded": ""
     }
   ], []);
   
@@ -124,21 +138,25 @@ export default function MainSections() {
     techStack: '',
     githubRepo: '',
     demoUrl: '',
-    image: ''
+    image: '',
+    imageAlt: '',
+    dateAdded: ''
   });
-  const [projectsInText, setProjectsInText] = useState('');
-  // const textareaPlaceholder = `Paste your projects here as a JSON array. Example:
-  // [
-  //   {
-  //     "title": "Project Title",
-  //     "description": "Short description of the project.",
-  //     "techStack": ["React", "TypeScript"],
-  //     "githubRepo": "repo-name",
-  //     "demoUrl": "https://demo-link.com",
-  //     "image": "/path/to/image.png"
-  //   }
-  // ]
-  // `
+  const [tabValue, setTabValue] = useState<'single' | 'multiple'>('single');
+
+  const textareaPlaceholder = `[
+  {
+    'title': '',
+    'description': '',
+    'techStack': '',
+    'githubRepo': '',
+    'demoUrl': '',
+    'image': '',
+    'imageAlt': '',
+    'dateAdded': 'dd/mm/yyyy',
+  }
+]`
+  const [projectsInText, setProjectsInText] = useState(textareaPlaceholder);
   const [textareaError, setTextareaError] = useState('');
   const [errors, setErrors] = useState<string[]>([]);
   const [showPassword, setShowPassword] = useState(false);
@@ -157,36 +175,40 @@ export default function MainSections() {
   const [otpVerified, setOtpVerified] = useState(false);
 
   // QR code state
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState({ url: '', key: '' });
   const [copied, setCopied] = useState(false);
-
-  // useEffect(() => {
-  //   // Generate a secret key for TOTP
-  //   console.log(generate_secret_key())
-  // }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // On Mac: metaKey is the Command key
-      if ((e.metaKey || e.ctrlKey) && (e.key === 'e' || e.key === 'E')) {
-        e.preventDefault();
-        setOpen(true);
+      if (e.metaKey || e.ctrlKey) {
+        if (e.key === 'l' || e.key === 'L') {
+          e.preventDefault();
+          setOpen(true);
+        } else if (e.key === 'm' || e.key === 'M') {
+          e.preventDefault();
+          setShowQRCode(!showQRCode);
+        }
+      } else if (e.key === 'Escape') {
+        setOpen(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [showQRCode]);
 
   useEffect(() => {
     if (!open) return;
     // Generate QR code URL for Google Authenticator
     generateQRCodeURL()
-      .then((dataURL) => {
-        setQrCodeUrl(dataURL as string);
-      })
+      .then((data => {
+        const { dataURL, key } = data as { dataURL: string, key: string };
+        setQrCodeUrl({url: dataURL, key});
+      }))
       .catch((err) => {
         console.error("Error generating QR code:", err);
-        setQrCodeUrl('');
+        setQrCodeUrl({url: '', key: ''});
       });
   }, [open]);
 
@@ -239,7 +261,9 @@ export default function MainSections() {
           techStack: row.tech_stack ? row.tech_stack.split(',').map((t: string) => t.trim()) : [],
           githubRepo: row.github_repo,
           demoUrl: row.demo_url,
-          image: row.image
+          image: row.image,
+          imageAlt: row.image_alt,
+          dateAdded: row.date_added
         })));
       } catch {
         setDbProjects(projects);
@@ -300,18 +324,20 @@ export default function MainSections() {
           github_repo TEXT NOT NULL,
           demo_url TEXT,
           image TEXT,
+          image_alt TEXT DEFAULT 'Project Image',
+          date_added DATE DEFAULT NOW(),
           timestamp TIMESTAMPTZ DEFAULT NOW(),
           last_updated TIMESTAMPTZ DEFAULT NOW()
         )
       `;
       // Check if the event target contains a textarea with id "textareaM"
-      if (projectsInText) {
+      if (tabValue === 'multiple' && projectsInText.trim()) {
         const rawInput = projectsInText.trim();
         const parsedProjects = JSON.parse(rawInput);
         if (Array.isArray(parsedProjects)) {
           for (const project of parsedProjects) {
             await sql`
-              INSERT INTO projects (title, description, tech_stack, github_repo, demo_url, image, timestamp, last_updated)
+              INSERT INTO projects (title, description, tech_stack, github_repo, demo_url, image, image_alt, date_added, timestamp, last_updated)
               VALUES (
                 ${project.title},
                 ${project.description},
@@ -319,6 +345,8 @@ export default function MainSections() {
                 ${project.githubRepo},
                 ${project.demoUrl},
                 ${project.image},
+                ${project.imageAlt},
+                ${project.dateAdded},
                 ${new Date().toISOString()},
                 ${new Date().toISOString()}
               )
@@ -327,8 +355,8 @@ export default function MainSections() {
         }
       } else {
         await sql`
-          INSERT INTO projects (title, description, tech_stack, github_repo, demo_url, image, timestamp, last_updated)
-          VALUES (${form.title}, ${form.description}, ${form.techStack}, ${form.githubRepo}, ${form.demoUrl}, ${form.image}, ${new Date().toISOString()}, ${new Date().toISOString()})
+          INSERT INTO projects (title, description, tech_stack, github_repo, demo_url, image, image_alt, date_added, timestamp, last_updated)
+          VALUES (${form.title}, ${form.description}, ${form.techStack}, ${form.githubRepo}, ${form.demoUrl}, ${form.image}, ${form.imageAlt}, ${form.dateAdded}, ${new Date().toISOString()}, ${new Date().toISOString()})
         `;
       }
       const res = await sql`SELECT * FROM projects ORDER BY id DESC`;
@@ -339,10 +367,18 @@ export default function MainSections() {
         techStack: row.tech_stack ? row.tech_stack.split(',').map((t: string) => t.trim()) : [],
         githubRepo: row.github_repo,
         demoUrl: row.demo_url,
-        image: row.image
+        image: row.image,
+        imageAlt: row.image_alt,
+        dateAdded: row.date_added
       })));
       setOpen(false);
-      setForm({ title: '', description: '', techStack: '', githubRepo: '', demoUrl: '', image: '' });
+      toast.success('Project added successfully');
+      if (projectsInText) {
+        setProjectsInText(textareaPlaceholder)
+        setTextareaError('');
+      } else {
+        setForm({ title: '', description: '', techStack: '', githubRepo: '', demoUrl: '', image: '', imageAlt: '', dateAdded: '' });
+      }
     } catch (err) {
       // console.log(err);
       toast.error(err instanceof Error ? err.message : 'Failed to add project');
@@ -380,15 +416,15 @@ export default function MainSections() {
 
   const copyQRCode = () => {
     setCopied(true);
-    toast.success('QR Code copied to clipboard. Add it to your google authenticator app to get OTP');
-    if (!qrCodeUrl) {
-      toast.error('QR Code not available');
+    toast.success('Secret code copied to clipboard. Add it to your google authenticator app to get OTP');
+    if (!qrCodeUrl.key) {
+      toast.error('Secret Code not available');
       return;
     }
-    navigator.clipboard.writeText(generate_totp())
+    navigator.clipboard.writeText(qrCodeUrl.key)
       .catch(err => {
-        console.error("Failed to copy QR code:", err);
-        toast.error('Failed to copy QR Code');
+        console.error("Failed to copy Secret code:", err);
+        toast.error('Failed to copy Secret Code');
       });
     setTimeout(() => setCopied(false), 2000);
   };
@@ -400,11 +436,11 @@ export default function MainSections() {
         <DialogTrigger asChild>
           {/* <Button className="mb-6">Add New Project</Button> */}
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className='gap-0'>
           <DialogHeader>
             <DialogTitle>Add New Project</DialogTitle>
           </DialogHeader>
-          <form onSubmit={authSuccess ? handleSubmit : handleLogin} className="space-y-4 overflow-auto max-h-[80dvh] p-1">
+          <form onSubmit={authSuccess ? handleSubmit : handleLogin} className="space-y-4 overflow-auto max-h-[85dvh] p-1">
             <Tabs defaultValue={authSuccess ? "addProject" : "authenticate"} value={authSuccess ? "addProject" : "authenticate"}>
               <TabsList hidden className='hidden'>
                 <TabsTrigger value="authenticate">Authenticate</TabsTrigger>
@@ -456,43 +492,45 @@ export default function MainSections() {
                   <Button type="submit" className={`w-full ${loading || !otpVerified ? 'cursor-not-allowed' : ''}`} disabled={loading || !otpVerified}>{loading ? 'Loading...' : 'Continue'}</Button>
                 </div>
 
-                <div className="mb-4">
-                  <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Smartphone className="w-4 h-4 text-gray-600" />
-                      <span className="text-sm font-medium text-gray-700">
-                        Scan with Google Authenticator
-                      </span>
-                    </div>
-                    
-                    <div className="relative bg-white rounded-2xl p-3 shadow-sm">
-                      <div className="w-40 h-40 p-1 mx-auto bg-white rounded-xl overflow-hidden shadow-inner">
-                        {qrCodeUrl && <img src={qrCodeUrl} className='w-full h-full ' alt='Authenticator QR Code' />}
+                {showQRCode && (
+                  <div className="mb-4">
+                    <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-gray-200">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Smartphone className="w-4 h-4 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">
+                          Scan with Google Authenticator
+                        </span>
                       </div>
                       
-                      <button
-                        onClick={copyQRCode}
-                        className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
-                      >
-                        {copied ? (
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                        ) : (
-                          <Copy className="w-4 h-4 text-gray-500" />
-                        )}
-                      </button>
+                      <div className="relative bg-white rounded-2xl p-3 shadow-sm">
+                        <div className="w-40 h-40 p-1 mx-auto bg-white rounded-xl overflow-hidden shadow-inner">
+                          {qrCodeUrl.url && <img src={qrCodeUrl.url} className='w-full h-full ' alt='Authenticator QR Code' />}
+                        </div>
+                        
+                        <button
+                          onClick={copyQRCode}
+                          className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors duration-200"
+                        >
+                          {copied ? (
+                            <CheckCircle className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-gray-500" />
+                          )}
+                        </button>
+                      </div>
+                      
+                      <p className="text-xs text-gray-600 mt-2 text-center">
+                        Open your authenticator app and scan the QR code above
+                      </p>
                     </div>
-                    
-                    <p className="text-xs text-gray-600 mt-2 text-center">
-                      Open your authenticator app and scan the QR code above
-                    </p>
                   </div>
-                </div>
+                )}
 
               </TabsContent>
               <TabsContent value="addProject" className="space-y-4">
                 {authError && <div className="text-red-500 text-sm">{authError}</div>}
                 {/* Project fields */}
-                <Tabs defaultValue="single">
+                <Tabs defaultValue="single" value={tabValue} onValueChange={(e) => setTabValue(e as 'single' | 'multiple')}>
                   <TabsList>
                     <TabsTrigger value="" disabled className="disabled:opacity-100">Projects: </TabsTrigger>
                     <TabsTrigger value="single">Single</TabsTrigger>
@@ -505,15 +543,17 @@ export default function MainSections() {
                     <Input name="githubRepo" placeholder="GitHub repo name" value={form.githubRepo} onChange={handleChange} required />
                     <Input name="demoUrl" placeholder="Demo URL" value={form.demoUrl} onChange={handleChange} />
                     <Input name="image" placeholder="Image path" value={form.image} onChange={handleChange} />
+                    <Input name="imageAlt" placeholder="Image alt text" value={form.imageAlt} onChange={handleChange} />
+                    <Input id="dateAdded1" name="dateAdded" type='date' value={form.dateAdded} onChange={handleChange} />
                   </TabsContent>
                   <TabsContent value="multiple" className="space-y-4">
                     <div className="text-xs text-gray-500 mt-2">
-                      Please enter a valid JSON array of project objects. Each object should include: <b>title</b>, <b>description</b>, <b>techStack</b> (array), <b>githubRepo</b>, <b>demoUrl</b>, and <b>image</b>.
+                      Please enter a valid JSON array of project objects. Each object should include: <b>title</b>, <b>description</b>, <b>techStack</b> (array), <b>githubRepo</b>, <b>demoUrl</b>, <b>image</b>, <b>imageAlt</b> and <b>dateAdded</b>.
                     </div>
                     <CodeMirror
                       value={projectsInText}
                       height="400px"
-                      theme={githubLight}
+                      theme={theme === "light" ? githubLight : githubDark}
                       extensions={[json()]}
                       onChange={handleChangeForCodeMirror}
                     />
@@ -548,10 +588,10 @@ export default function MainSections() {
                 <span>About Me</span>
               </div>
               <p className="mt-2 text-muted-foreground">
-                I’m a 300-level Computer Science student at the University of Lagos with a growing expertise in full-stack and backend development. My programming journey began in <strong>November 2022</strong> with HTML, CSS, and JavaScript. In <strong>December 2023</strong>, I stepped into backend development using <strong>Express.js</strong>, building my first full-stack social media app from scratch.
+                I&apos;m a 300-level Computer Science student at the University of Lagos with a growing expertise in full-stack and backend development. My programming journey began in <strong>November 2022</strong> with HTML, CSS, and JavaScript. In <strong>December 2023</strong>, I stepped into backend development using <strong>Express.js</strong>, building my first full-stack social media app from scratch.
               </p>
               <p className="mt-2 text-muted-foreground">
-                Since then, I’ve built a variety of projects — from real-time social platforms and analytics dashboards to CLI tools and embedded APIs — including the very <strong>portfolio</strong> you're browsing now, built with <strong>Next.js</strong>, <strong>Tailwind CSS</strong>, and <strong>PostgreSQL</strong>.
+                Since then, I&apos;ve built a variety of projects — from real-time social platforms and analytics dashboards to CLI tools and embedded APIs — including the very <strong>portfolio</strong> you&apos;re browsing now, built with <strong>Next.js</strong>, <strong>Tailwind CSS</strong>, and <strong>PostgreSQL</strong>.
               </p>
             </div>
 
@@ -561,7 +601,7 @@ export default function MainSections() {
                 <span>Currently Learning & Growing</span>
               </div>
               <p className="mt-2 text-muted-foreground">
-                With a strong foundation in <strong>data structures</strong>, <strong>algorithms</strong>, and <strong>cloud computing</strong>, I’m always pushing my limits to become a well-rounded software engineer. When I’m not coding, I contribute to <strong>open-source projects</strong> and <strong>mentor junior developers</strong>, helping them take their first steps in tech.
+                With a strong foundation in <strong>data structures</strong>, <strong>algorithms</strong>, and <strong>cloud computing</strong>, I&apos;m always pushing my limits to become a well-rounded software engineer. When I&apos;m not coding, I contribute to <strong>open-source projects</strong> and <strong>mentor junior developers</strong>, helping them take their first steps in tech.
               </p>
             </div>
 
@@ -585,11 +625,13 @@ export default function MainSections() {
       <section id="projects" className="scroll-mt-20">
         <h2 className="text-3xl text-center font-bold my-8 text-gray-800 dark:text-white">Projects ({dbProjects.length})</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(dbProjects.length ? dbProjects : projects).map((project, index) => (
+          {(dbProjects.length ? dbProjects : projects).sort((a, b) => {
+            return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+          }).map((project, index) => (
             <div key={index} className="flex flex-col items-center border dark:from-gray-900 dark:to-gray-800 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
               <Avatar className="w-full h-auto object-cover rounded-none !rounded-t-xl mb-4 aspect-[16/10]">
-                <AvatarImage src={project.image || "i"} alt={project.title} className="w-full h-auto object-cover rounded-t-xl mb-4" />
-                <AvatarFallback className="w-full h-auto object-cover rounded-none rounded-t-xl mb-4">{project.title}</AvatarFallback>
+                <AvatarImage src={project.image || "i"} alt={project.imageAlt} className="w-full h-auto object-cover rounded-t-xl mb-4" />
+                <AvatarFallback className="w-full h-auto object-cover rounded-none rounded-t-xl mb-4">{project.imageAlt}</AvatarFallback>
               </Avatar>
               <div className="relative p-6">
                 <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{project.title}</h3>
@@ -598,6 +640,13 @@ export default function MainSections() {
                   {project.techStack.map((techStack: string, techIndex: number) => (
                     <span key={techIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-sm">{techStack.trim()}</span>
                   ))}
+                </div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                  <span className="font-semibold">Date Added:</span> {new Date(project.dateAdded).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
                 </div>
                 <div className="flex gap-4">
                   <a href={project.githubRepo.includes("https://github.com/") ? project.githubRepo : "https://github.com/ojutalayomi/"+project.githubRepo} className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" target="_blank" rel="noreferrer">
@@ -638,7 +687,9 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
     techStack: '',
     githubRepo: '',
     demoUrl: '',
-    image: ''
+    image: '',
+    imageAlt: '',
+    dateAdded: ''
   });
 
   useEffect(() => {
@@ -648,7 +699,9 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
       techStack: project?.techStack.join(', ') || '',
       githubRepo: project?.githubRepo || '',
       demoUrl: project?.demoUrl || '',
-      image: project?.image || ''
+      image: project?.image || '',
+      imageAlt: project?.imageAlt || '',
+      dateAdded: project?.dateAdded || ''
     })
   }, [project])
 
@@ -671,6 +724,8 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
           github_repo = ${form.githubRepo},
           demo_url = ${form.demoUrl},
           image = ${form.image},
+          image_alt = ${form.imageAlt},
+          date_added = ${form.dateAdded},
           last_updated = ${new Date().toISOString()}
         WHERE id = ${id}
       `;
@@ -683,7 +738,9 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
         techStack: row.tech_stack ? row.tech_stack.split(',').map((t: string) => t.trim()) : [],
         githubRepo: row.github_repo,
         demoUrl: row.demo_url,
-        image: row.image
+        image: row.image,
+        imageAlt: row.image_alt,
+        dateAdded: row.date_added
       })));
       setOpen(false);
       toast.success('Project updated successfully');
@@ -709,7 +766,9 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
         techStack: row.tech_stack ? row.tech_stack.split(',').map((t: string) => t.trim()) : [],
         githubRepo: row.github_repo,
         demoUrl: row.demo_url,
-        image: row.image
+        image: row.image,
+        imageAlt: row.image_alt,
+        dateAdded: row.date_added
       })));
       cancelButtonRef.current?.click();
     } catch (err) {
@@ -728,7 +787,7 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
         <DialogTrigger asChild>
           {children}
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] sm:max-h-[90dvh] overflow-auto">
           <DialogHeader>
             <DialogTitle>Edit project</DialogTitle>
             <DialogDescription>
@@ -760,8 +819,16 @@ export function ProjectEditOrDelete({ children, id, projects, setProjects }: { c
               <Label htmlFor="image">Image</Label>
               <Input id="image" name="image" value={form.image} onChange={handleChange} />
             </div>
+            <div className="grid gap-3">
+              <Label htmlFor="imageAlt">Image Alt</Label>
+              <Input id="imageAlt" name="imageAlt" value={form.imageAlt} onChange={handleChange} />
+            </div>
+            <div className="grid gap-3">
+              <Label htmlFor="dateAdded">Date Added</Label>
+              <Input id="dateAdded2" name="dateAdded" type='date' value={form.dateAdded} onChange={handleChange} />
+            </div>
           </form>
-          <DialogFooter>
+          <DialogFooter className="gap-y-2 sm:sticky sm:translate-y-[40%] bottom-0 left-0 right-0 p-4 bg-white dark:bg-gray-900 border-t">
             <DialogClose asChild>
               <Button variant="outline" ref={cancelButtonRef} disabled={loading.edit || loading.delete}>Cancel</Button>
             </DialogClose>

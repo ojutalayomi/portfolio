@@ -66,7 +66,12 @@ export function ThemeProvider({
     </ThemeProviderContext.Provider>
   )
 }
-
+  
+/**
+ * Custom hook to access the theme context.
+ * @returns { theme: Theme, setTheme: (theme: Theme) => void }
+ * @throws {Error} If used outside of a ThemeProvider.
+ */
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext)
 
