@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/preview/route.ts": {
+    "src/app/api/preview/route.ts": {
       "includeFiles": "node_modules/@sparticuz/chromium/bin/**"
     }
   }
