@@ -1,9 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 import dynamic from 'next/dynamic';
 import { sql } from '@vercel/postgres';
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { Card, CardContent } from './ui/card';
-import { Cpu, Code2, Smartphone, CheckCircle, Copy, EyeOff, Eye, XCircle, Pencil, Loader2, Settings, BookOpenCheck } from 'lucide-react';
+import { Cpu, Code2, Smartphone, CheckCircle, Copy, EyeOff, Eye, XCircle, Pencil, Loader2, Settings, BookOpenCheck, Search, ArrowUpDown, ImageOff } from 'lucide-react';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { useState, useEffect, useMemo, Dispatch, SetStateAction, ReactNode, createRef } from 'react';
 import { Input } from './ui/input';
@@ -11,6 +10,13 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
 import { Label } from './ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import {
   InputOTP,
   InputOTPGroup,
@@ -27,6 +33,8 @@ import { json } from '@codemirror/lang-json';
 import { githubDark, githubLight } from '@uiw/codemirror-theme-github';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useTheme } from '@/providers/theme-provider';
+import { ProjectDetailsDialog } from './ProjectDetailsDialog';
+import { Project } from '@/lib/types';
 const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), { ssr: false });
 
 const ajv = new Ajv({ allErrors: true });
@@ -56,30 +64,6 @@ const projectSchema = {
 };
 
 const validate = ajv.compile(projectSchema);
-
-interface Project {
-  id?: string,
-  title: string;
-  description: string;
-  techStack: string[];
-  githubRepo: string;
-  demoUrl?: string;
-  image?: string;
-  imageAlt: string;
-  dateAdded: string;
-}
-
-// [
-//     { delay: 0.0, filter: '2', description: "HTML, CSS and JS", image: '/security.png', title: 'Lock Screen Page', link: 'https://ojutalayomi.githubRepo.io/security' },
-//     { delay: 0.2, filter: '1', description: "Next.JS, TailwindCSS, Redis, Express JS and MongoDB", image: '/velo-virid.vercel.png', title: 'Velo', link: 'https://velo-virid.vercel.app' },
-//     { delay: 0.4, filter: '2', description: "HTML, CSS and JS", image: '/noow.png', title: 'Sign-In/Sign-Up Page', link: 'https://ojutalayomi.githubRepo.io/Newsletter-sign-up' },
-//     { delay: 0.6, filter: '2', description: "HTML, SCSS and JS", image: '/analytics-dashboard-362w.onrender.com_.png', title: 'Analytics Dashboard', link: 'https://analytics-dashboard-362w.onrender.com/' },
-//     { delay: 0.8, filter: '2', description: "HTML, CSS and JS", image: '/ojutalayomi.githubRepo.io_Login_.png', title: 'Wuramide Cakes', link: 'https://ojutalayomi.githubRepo.io/Login' },
-//     { delay: 1.0, filter: '2', description: "HTML, SCSS and JS", image: '/natoplus.png', title: 'NatoPlus', link: 'https://ojutalayomi.githubRepo.io/natoplus' },
-//     { delay: 1.2, filter: '1', description: "Next.JS, TailwindCSS, ShadCN, Golang, Redis and MongoDB", image: '/facey.vercel.app.png', title: 'Facey', link: 'https://facey.vercel.app' },
-//     { delay: 1.4, filter: '1', description: "HTML, CSS, JS and Express JS", image: '/portfolio.page.png', title: 'My Portfolio', link: 'https://portfolio-enb2.onrender.com' }
-// ]
-
 
 
 export default function MainSections() {
@@ -162,6 +146,15 @@ export default function MainSections() {
   const [showPassword, setShowPassword] = useState(false);
   const [dbProjects, setDbProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'date' | 'title' | 'tech'>('date');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [favoriteProjects, setFavoriteProjects] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showAnimations, setShowAnimations] = useState(true);
+  const [projectViews, setProjectViews] = useState<Record<string, number>>({});
 
   // Add authentication state
   const [auth, setAuth] = useState({ username: '', password: '' });
@@ -189,9 +182,24 @@ export default function MainSections() {
         } else if (e.key === 'm' || e.key === 'M') {
           e.preventDefault();
           setShowQRCode(!showQRCode);
+        } else if (e.key === 'k' || e.key === 'K') {
+          e.preventDefault();
+          // Focus search input
+          const searchInput = document.getElementById('search-input');
+          if (searchInput) {
+            (searchInput as HTMLInputElement).focus();
+          }
+        } else if (e.key === 'g' || e.key === 'G') {
+          e.preventDefault();
+          setViewMode(prev => prev === 'grid' ? 'list' : 'grid');
+        } else if (e.key === 'f' || e.key === 'F') {
+          e.preventDefault();
+          setShowAnimations(prev => !prev);
         }
       } else if (e.key === 'Escape') {
         setOpen(false);
+        // Clear search when pressing Escape
+        setSearchQuery('');
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -311,6 +319,133 @@ export default function MainSections() {
     setAuth({ ...auth, [e.target.name]: e.target.value });
   }
 
+  // Handle filter toggle
+  function handleFilterToggle(tech: string) {
+    setActiveFilters(prev => 
+      prev.includes(tech) 
+        ? prev.filter(filter => filter !== tech)
+        : [...prev, tech]
+    );
+  }
+
+  // Handle favorite toggle
+  function handleFavoriteToggle(projectId: string) {
+    setFavoriteProjects(prev => 
+      prev.includes(projectId) 
+        ? prev.filter(id => id !== projectId)
+        : [...prev, projectId]
+    );
+  }
+
+  // Track project view
+  function trackProjectView(projectId: string) {
+    setProjectViews(prev => ({
+      ...prev,
+      [projectId]: (prev[projectId] || 0) + 1
+    }));
+  }
+
+  // Get all unique technologies from projects
+  const allTechnologies = useMemo(() => {
+    const techSet = new Set<string>();
+    (dbProjects.length ? dbProjects : projects).forEach(project => {
+      project.techStack.forEach(tech => techSet.add(tech.trim()));
+    });
+    return Array.from(techSet).sort();
+  }, [dbProjects, projects]);
+
+  // Get project categories
+  const projectCategories = useMemo(() => {
+    const categories = new Set<string>();
+    (dbProjects.length ? dbProjects : projects).forEach(project => {
+      // Determine category based on tech stack
+      if (project.techStack.some(tech => ['React', 'Next.js', 'Vue', 'Angular'].includes(tech))) {
+        categories.add('Frontend');
+      }
+      if (project.techStack.some(tech => ['Node.js', 'Express', 'Python', 'Golang', 'FastAPI'].includes(tech))) {
+        categories.add('Backend');
+      }
+      if (project.techStack.some(tech => ['MongoDB', 'PostgreSQL', 'Redis', 'MySQL'].includes(tech))) {
+        categories.add('Database');
+      }
+      if (project.techStack.some(tech => ['HTML', 'CSS', 'SCSS', 'JavaScript'].includes(tech))) {
+        categories.add('Web');
+      }
+    });
+    return ['all', ...Array.from(categories).sort()];
+  }, [dbProjects, projects]);
+
+  // Enhanced filter, search, and sort projects
+  const filteredProjects = useMemo(() => {
+    let projectsToFilter = dbProjects.length ? dbProjects : projects;
+    
+    // Filter by category
+    if (selectedCategory !== 'all') {
+      projectsToFilter = projectsToFilter.filter(project => {
+        const techStack = project.techStack.map(tech => tech.trim());
+        switch (selectedCategory) {
+          case 'Frontend':
+            return techStack.some(tech => ['React', 'Next.js', 'Vue', 'Angular'].includes(tech));
+          case 'Backend':
+            return techStack.some(tech => ['Node.js', 'Express', 'Python', 'Golang', 'FastAPI'].includes(tech));
+          case 'Database':
+            return techStack.some(tech => ['MongoDB', 'PostgreSQL', 'Redis', 'MySQL'].includes(tech));
+          case 'Web':
+            return techStack.some(tech => ['HTML', 'CSS', 'SCSS', 'JavaScript'].includes(tech));
+          default:
+            return true;
+        }
+      });
+    }
+    
+    // Filter by technology
+    if (activeFilters.length > 0) {
+      projectsToFilter = projectsToFilter.filter(project => {
+        // Check if favorites filter is active
+        if (activeFilters.includes('favorites')) {
+          return favoriteProjects.includes(project.id || '');
+        }
+        
+        // Check technology filters
+        return activeFilters.some(filter => 
+          project.techStack.some(tech => tech.trim().toLowerCase() === filter.toLowerCase())
+        );
+      });
+    }
+    
+    // Search functionality
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      projectsToFilter = projectsToFilter.filter(project =>
+        project.title.toLowerCase().includes(query) ||
+        project.description.toLowerCase().includes(query) ||
+        project.techStack.some(tech => tech.toLowerCase().includes(query))
+      );
+    }
+    
+    // Sort projects
+    projectsToFilter.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'title':
+          comparison = a.title.localeCompare(b.title);
+          break;
+        case 'tech':
+          comparison = a.techStack.join(', ').localeCompare(b.techStack.join(', '));
+          break;
+        case 'date':
+        default:
+          comparison = new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
+          break;
+      }
+      
+      return sortOrder === 'asc' ? -comparison : comparison;
+    });
+    
+    return projectsToFilter;
+  }, [dbProjects, projects, activeFilters, searchQuery, sortBy, sortOrder, selectedCategory, favoriteProjects]);
+
   // Handle form submit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -429,6 +564,51 @@ export default function MainSections() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // Export filtered projects
+  const exportProjects = (format: 'json' | 'csv') => {
+    if (filteredProjects.length === 0) {
+      toast.error('No projects to export');
+      return;
+    }
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    const filename = `projects-${timestamp}.${format}`;
+
+    if (format === 'json') {
+      const dataStr = JSON.stringify(filteredProjects, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    } else if (format === 'csv') {
+      const headers = ['Title', 'Description', 'Tech Stack', 'GitHub Repo', 'Demo URL', 'Date Added'];
+      const csvContent = [
+        headers.join(','),
+        ...filteredProjects.map(project => [
+          `"${project.title}"`,
+          `"${project.description.replace(/"/g, '""')}"`,
+          `"${project.techStack.join(', ')}"`,
+          `"${project.githubRepo}"`,
+          `"${project.demoUrl || ''}"`,
+          `"${project.dateAdded}"`
+        ].join(','))
+      ].join('\n');
+      
+      const dataBlob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    toast.success(`Exported ${filteredProjects.length} project${filteredProjects.length !== 1 ? 's' : ''} as ${format.toUpperCase()}`);
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
       {/* Add Project Dialog */}
@@ -540,7 +720,7 @@ export default function MainSections() {
                     <Input name="title" placeholder="Title" value={form.title} onChange={handleChange} required />
                     <Textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="w-full p-2 rounded border" required />
                     <Input name="techStack" placeholder="Tech (comma separated)" value={form.techStack} onChange={handleChange} required />
-                    <Input name="githubRepo" placeholder="GitHub repo name" value={form.githubRepo} onChange={handleChange} required />
+                    <Input name="githubRepo" placeholder="GitHub repo name" value={form.githubRepo} onChange={handleChange} />
                     <Input name="demoUrl" placeholder="Demo URL" value={form.demoUrl} onChange={handleChange} />
                     <Input name="image" placeholder="Image path" value={form.image} onChange={handleChange} />
                     <Input name="imageAlt" placeholder="Image alt text" value={form.imageAlt} onChange={handleChange} />
@@ -623,52 +803,445 @@ export default function MainSections() {
 
       {/* Projects Section */}
       <section id="projects" className="scroll-mt-20">
-        <h2 className="text-3xl text-center font-bold my-8 text-gray-800 dark:text-white">Projects ({dbProjects.length})</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {(dbProjects.length ? dbProjects : projects).sort((a, b) => {
-            return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
-          }).map((project, index) => (
-            <div key={index} className="flex flex-col items-center border dark:from-gray-900 dark:to-gray-800 bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-              <Avatar className="w-full h-auto object-cover rounded-none !rounded-t-xl mb-4 aspect-[16/10]">
-                <AvatarImage src={project.image || "i"} alt={project.imageAlt} className="w-full h-auto object-cover rounded-t-xl mb-4" />
-                <AvatarFallback className="w-full h-auto object-cover rounded-none rounded-t-xl mb-4">{project.imageAlt}</AvatarFallback>
-              </Avatar>
-              <div className="relative p-6">
-                <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-white">{project.title}</h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.techStack.map((techStack: string, techIndex: number) => (
-                    <span key={techIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-sm">{techStack.trim()}</span>
-                  ))}
+        <h2 className="text-3xl text-center font-bold my-8 text-gray-800 dark:text-white">Projects ({filteredProjects.length})</h2>
+        
+        {/* Project Statistics */}
+        <div className="mb-6 text-center">
+          <div className="inline-flex gap-6 text-sm text-gray-600 dark:text-gray-400">
+            <span>Total: {dbProjects.length || projects.length}</span>
+            <span>•</span>
+            <span>Showing: {filteredProjects.length}</span>
+            <span>•</span>
+            <span>Technologies: {allTechnologies.length}</span>
+            <span>•</span>
+            <span>Categories: {projectCategories.length - 1}</span>
+          </div>
+        </div>
+
+        {/* Enhanced Project Statistics Dashboard */}
+        <div className="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">Total Projects</p>
+                  <p className="text-2xl font-bold text-blue-800 dark:text-blue-200">{dbProjects.length || projects.length}</p>
                 </div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  <span className="font-semibold">Date Added:</span> {new Date(project.dateAdded).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </div>
-                <div className="flex gap-4">
-                  <a href={project.githubRepo.includes("https://github.com/") ? project.githubRepo : "https://github.com/ojutalayomi/"+project.githubRepo} className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" target="_blank" rel="noreferrer">
-                    <FaGithub className="mr-2" /> Code
-                  </a>
-                  {project.demoUrl && (
-                    <a href={project.demoUrl} className="flex items-center text-gray-600 dark:text-gray-300 hover:text-blue-500 transition-colors" target="_blank" rel="noreferrer">
-                      <FaExternalLinkAlt className="mr-2" /> Demo
-                    </a>
-                  )}
-                  {authSuccess && (
-                    <ProjectEditOrDelete id={project.id || ''} projects={dbProjects} setProjects={setDbProjects}>
-                      <div className='absolute bottom-0 right-0 flex gap-2 items-center p-2 m-2 cursor-pointer rounded-lg hover:border border-red-500'>
-                        <Pencil size={15}/>
-                        <span>Edit</span>
-                      </div>
-                    </ProjectEditOrDelete>
-                  )}
+                <div className="w-8 h-8 bg-blue-200 dark:bg-blue-800 rounded-full flex items-center justify-center">
+                  <Code2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-green-600 dark:text-green-400">Favorites</p>
+                  <p className="text-2xl font-bold text-green-800 dark:text-green-200">{favoriteProjects.length}</p>
+                </div>
+                <div className="w-8 h-8 bg-green-200 dark:bg-green-800 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 dark:text-green-400">⭐</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-purple-600 dark:text-purple-400">Total Views</p>
+                  <p className="text-2xl font-bold text-purple-800 dark:text-purple-200">
+                    {Object.values(projectViews).reduce((sum, views) => sum + views, 0)}
+                  </p>
+                </div>
+                <div className="w-8 h-8 bg-purple-200 dark:bg-purple-800 rounded-full flex items-center justify-center">
+                  <Search className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-orange-600 dark:text-orange-400">View Mode</p>
+                  <p className="text-lg font-bold text-orange-800 dark:text-orange-200 capitalize">{viewMode}</p>
+                </div>
+                <div className="w-8 h-8 bg-orange-200 dark:bg-orange-800 rounded-full flex items-center justify-center">
+                  <Settings className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Search, Sort, and Category Controls */}
+        <div className="mb-6 space-y-4">
+          {/* Search Bar */}
+          <div className="flex justify-center">
+            <div className="relative w-full max-w-md">
+              <Input
+                id="search-input"
+                type="text"
+                placeholder="Search projects by title, description, or tech stack... (⌘K)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             </div>
-          ))}
+          </div>
+
+          {/* Sort and Category Controls */}
+          <div className="flex flex-wrap gap-4 justify-center items-center">
+            {/* Category Filter */}
+            <div className="flex items-center gap-2">
+              <Label htmlFor="category" className="text-sm font-medium">Category:</Label>
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projectCategories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category === 'all' ? 'All Categories' : category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Sort Controls */}
+            <div className="flex items-center gap-2">
+              <Label htmlFor="sortBy" className="text-sm font-medium">Sort by:</Label>
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as 'date' | 'title' | 'tech')}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="date">Date</SelectItem>
+                  <SelectItem value="title">Title</SelectItem>
+                  <SelectItem value="tech">Technology</SelectItem>
+                </SelectContent>
+              </Select>
+              <button
+                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+              >
+                {sortOrder === 'asc' ? (
+                  <ArrowUpDown className="h-4 w-4" />
+                ) : (
+                  <ArrowUpDown className="h-4 w-4 rotate-180" />
+                )}
+              </button>
+            </div>
+
+            {/* Clear All Filters */}
+            {(searchQuery || selectedCategory !== 'all' || activeFilters.length > 0) && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setSelectedCategory('all');
+                  setActiveFilters([]);
+                }}
+                className="px-3 py-1 text-sm bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 rounded-md transition-colors"
+              >
+                Clear All Filters
+              </button>
+            )}
+
+            {/* Export Buttons */}
+            {filteredProjects.length > 0 && (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => exportProjects('json')}
+                  className="px-3 py-1 text-sm bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800 rounded-md transition-colors"
+                  title="Export as JSON"
+                >
+                  Export JSON
+                </button>
+                <button
+                  onClick={() => exportProjects('csv')}
+                  className="px-3 py-1 text-sm bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800 rounded-md transition-colors"
+                  title="Export as CSV"
+                >
+                  Export CSV
+                </button>
+              </div>
+            )}
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <Label className="text-sm font-medium">View:</Label>
+              <div className="flex border border-gray-300 dark:border-gray-600 rounded-md">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-1 text-sm transition-colors ${
+                    viewMode === 'grid'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                  title="Grid View"
+                >
+                  Grid
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-1 text-sm transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                  title="List View"
+                >
+                  List
+                </button>
+              </div>
+            </div>
+
+            {/* Favorites Filter */}
+            {favoriteProjects.length > 0 && (
+              <button
+                onClick={() => setActiveFilters(prev => 
+                  prev.includes('favorites') 
+                    ? prev.filter(f => f !== 'favorites')
+                    : [...prev, 'favorites']
+                )}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  activeFilters.includes('favorites')
+                    ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300'
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+                title="Show Favorites"
+              >
+                ⭐ Favorites ({favoriteProjects.length})
+              </button>
+            )}
+
+            {/* Keyboard Shortcuts Help */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors"
+                  title="Keyboard Shortcuts"
+                >
+                  ⌨️ Shortcuts
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Keyboard Shortcuts</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span>Search Projects</span>
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘K</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Toggle View Mode</span>
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘G</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Toggle Animations</span>
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘F</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Add Project</span>
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘L</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Toggle QR Code</span>
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">⌘M</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Close/Reset</span>
+                    <kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">Esc</kbd>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline">Close</Button>
+                  </DialogClose>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Active Filters Summary */}
+          {(searchQuery || selectedCategory !== 'all' || activeFilters.length > 0) && (
+            <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+              <span>Active filters: </span>
+              {searchQuery && <span className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded mr-2">Search: &quot;{searchQuery}&quot;</span>}
+              {selectedCategory !== 'all' && <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded mr-2">Category: {selectedCategory}</span>}
+              {activeFilters.map((filter) => (
+                <span key={filter} className="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded mr-2">
+                  Tech: {filter}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* Filter Buttons */}
+        {allTechnologies.length > 0 && (
+          <div className="mb-6">
+            <div className="flex flex-wrap gap-2 justify-center">
+              {allTechnologies.map((tech) => (
+                <button
+                  key={tech}
+                  onClick={() => handleFilterToggle(tech)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                    activeFilters.includes(tech)
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                  }`}
+                >
+                  {tech}
+                </button>
+              ))}
+              {activeFilters.length > 0 && (
+                <button
+                  onClick={() => setActiveFilters([])}
+                  className="px-4 py-2 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800 transition-all duration-200"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+            {activeFilters.length > 0 && (
+              <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
+                Showing {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''} with {activeFilters.join(', ')}
+              </p>
+            )}
+          </div>
+        )}
+        
+        <div className={`gap-6 ${
+          viewMode === 'grid' 
+            ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+            : 'flex flex-col gap-4'
+        }`}>
+          {filteredProjects.length > 0 ? (
+            filteredProjects.map((project, index) => (
+              <div key={index} className={`relative ${
+                showAnimations ? 'animate-in fade-in-0 slide-in-from-bottom-4 duration-500' : ''
+              }`} style={{ animationDelay: `${index * 100}ms` }}>
+                {viewMode === 'grid' ? (
+                  // Grid View
+                  <>
+                    <ProjectDetailsDialog project={project} onView={() => trackProjectView(project.id || '')} />
+                    {authSuccess && (
+                      <ProjectEditOrDelete id={project.id || ''} projects={dbProjects} setProjects={setDbProjects}>
+                        <div className='absolute top-2 right-2 flex gap-2 items-center p-2 m-2 cursor-pointer rounded-lg hover:bg-red-100 dark:hover:bg-red-900 transition-colors z-10'>
+                          <Pencil size={15}/>
+                          <span className="text-sm">Edit</span>
+                        </div>
+                      </ProjectEditOrDelete>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleFavoriteToggle(project.id || '');
+                      }}
+                      className={`absolute top-2 left-2 p-2 rounded-lg transition-colors z-10 ${
+                        favoriteProjects.includes(project.id || '')
+                          ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300'
+                          : 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-400 hover:bg-yellow-100 dark:hover:bg-yellow-900'
+                      }`}
+                      title={favoriteProjects.includes(project.id || '') ? 'Remove from favorites' : 'Add to favorites'}
+                    >
+                      ⭐
+                    </button>
+                  </>
+                ) : (
+                  // List View
+                  <div className="flex items-center gap-4 p-4 border rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-gray-900 dark:to-gray-800 shadow-sm hover:shadow-md transition-all group cursor-pointer relative">
+                    <div className="flex-shrink-0 flex items-center justify-center w-20 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+                      <Avatar className="w-20 h-20 object-cover rounded-lg">
+                        <AvatarImage src={project.image || "/i.png"} alt={project.imageAlt} className="w-20 h-20 object-cover rounded-lg" />
+                        <AvatarFallback className="w-20 h-20 object-cover rounded-lg bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 flex items-center justify-center text-gray-500 dark:text-gray-400">
+                          <ImageOff className="w-8 h-8" />
+                          <span className="sr-only">{project.imageAlt}</span>
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-white truncate">
+                          {project.title}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleFavoriteToggle(project.id || ''); }}
+                            className={`p-1 rounded transition-colors ${
+                              favoriteProjects.includes(project.id || '')
+                                ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300'
+                                : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            }`}
+                            title={favoriteProjects.includes(project.id || '') ? 'Remove from favorites' : 'Add to favorites'}
+                          >
+                            ⭐
+                          </button>
+                          {authSuccess && (
+                            <ProjectEditOrDelete id={project.id || ''} projects={dbProjects} setProjects={setDbProjects}>
+                              <button className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors">
+                                <Pencil size={16}/>
+                              </button>
+                            </ProjectEditOrDelete>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {project.techStack.slice(0, 3).map((tech, techIndex) => (
+                          <span key={techIndex} className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100 rounded-full text-xs">
+                            {tech.trim()}
+                          </span>
+                        ))}
+                        {project.techStack.length > 3 && (
+                          <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs">
+                            +{project.techStack.length - 3} more
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-1">
+                        {project.description}
+                      </p>
+                      <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <span>Views: {projectViews[project.id || ''] || 0}</span>
+                        <span>Added: {new Date(project.dateAdded).toLocaleDateString()}</span>
+                        {/* <ProjectDetailsDialog project={project} onView={() => trackProjectView(project.id || '')} /> */}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12">
+              <div className="max-w-md mx-auto">
+                <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No projects found</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
+                  Try adjusting your search terms or filters to find what you&apos;re looking for.
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('all');
+                    setActiveFilters([]);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>

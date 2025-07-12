@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import ScrollTriggered from "@/components/ScrollBody";
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarShortcut, MenubarTrigger } from "@/components/ui/menubar";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { Pen, Pencil } from "lucide-react";
 import Image from "next/image";
 import { Typewriter } from 'react-simple-typewriter'
 
@@ -38,7 +39,7 @@ export default function Home() {
             <div className="flex flex-row items-center justify-center h-full" id="row">
               <div className="flex-1 hidden md:block">
                 <div className="hero-image p-8 pb-0 flex items-center justify-center">
-                  <Image src="/image.png" width={300} height={300} className="mt-12 sm:w-[500px]" alt="Hero Image"/>
+                  <Image src="https://ik.imagekit.io/josi/image.png?updatedAt=1752242676327" width={300} height={300} className="mt-12 sm:w-[500px]" alt="Hero Image"/>
                 </div>
               </div>
               <div className="flex-1 h-full">
@@ -49,9 +50,9 @@ export default function Home() {
                     <h2 className="!mt-8 text-3xl">
                       <Typewriter
                         cursorBlinking
-                        words={['Web Designer', 'Fullstack Web Developer', 'Code', 'Repeat!']}
+                        words={['Computer Science Student', 'Fullstack Web Developer', 'Code', 'Repeat!']}
                         cursor
-                        cursorStyle='|'
+                        cursorStyle={<Pencil className="inline-block w-6 h-6 text-[#06b6d4] animate-blink" />}
                         typeSpeed={70}
                         loop={false}
                         deleteSpeed={50}

@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
         }
         browser = await puppeteer.launch(launchOptions);
         const page = await browser.newPage();
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 15000 });
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
         const screenshot = await page.screenshot({ type: 'png' });
         await browser.close();
 
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
             status: 200,
             headers: {
                 'Content-Type': 'image/png',
-                'Cache-Control': 'no-store',
+                'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400',
             },
         });
     } catch (error) {
